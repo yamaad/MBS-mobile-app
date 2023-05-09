@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "397185860250",
+    "project_id": "mbs-mobile-app-376a2",
+    "storage_bucket": "mbs-mobile-app-376a2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:397185860250:android:4a751263822906f3b9d523",
+        "android_client_info": {
+          "package_name": "com.psm2.mbs_fyp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "397185860250-u4pkmdcl7i8ccv0vvdeb08s9af6umrhf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCl5TeBOssEs8oTCXkK4ZBRjRYe4iXQcO0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "397185860250-u4pkmdcl7i8ccv0vvdeb08s9af6umrhf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
