@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mbs_fyp/screens/authenticate/signin.dart';
-import 'package:mbs_fyp/screens/authenticate/signup.dart';
+import 'package:mbs_fyp/screens/authenticate/registeration/CustomerSignup.dart';
 
 class Authenticate extends StatefulWidget {
   const Authenticate({super.key});
@@ -21,7 +21,7 @@ class _AuthenticateState extends State<Authenticate> {
   Widget build(BuildContext context) {
     return Container(
       child: showRegisterPage
-          ? Signup(toggleView: toggleView)
+          ? CustomerSignup(toggleView: toggleView)
           : Signin(toggleView: toggleView),
     );
   }
