@@ -59,7 +59,7 @@ class _SigninState extends State<Signin> {
                     children: [
                       TextButton(
                         onPressed: () async {
-                          widget.toggleView();
+                                widget.toggleView('custReg');
                         },
                         child: Text("register"),
                       ),

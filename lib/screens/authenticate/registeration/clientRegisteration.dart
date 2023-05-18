@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:mbs_fyp/components/loading.dart';
 import 'package:mbs_fyp/models/validator.dart';
 import 'package:mbs_fyp/services/authService.dart';
@@ -24,6 +22,10 @@ class _ClientRegistrationState extends State<ClientRegistration> {
   String email = '';
   String password = '';
   String confirmPassword = '';
+  String shopName = '';
+  String ownerName = '';
+  int phone = 0;
+  String location = '';
   @override
   Widget build(BuildContext context) {
     return loading
@@ -42,9 +44,49 @@ class _ClientRegistrationState extends State<ClientRegistration> {
                       EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
                   child: Form(
                     key: _formkey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
+                    child: ListView(
                       children: [
+                        CustomTextField(
+                          validator: (value) =>
+                              value!.isEmpty ? "Enter your shop name" : null,
+                          hintText: 'shop name',
+                          onChanged: (value) =>
+                              {setState(() => shopName = value)},
+                        ),
+                        SizedBox(height: 10),
+                        CustomTextField(
+                          validator: (value) =>
+                              value!.isEmpty ? "Enter owner full name" : null,
+                          hintText: 'owner full name',
+                          onChanged: (value) =>
+                              {setState(() => ownerName = value)},
+                        ),
+                        SizedBox(height: 10),
+                        CustomTextField(
+                          keyboardType: TextInputType.phone,
+                          validator: (value) =>
+                              value!.isEmpty ? "Enter shop phone number" : null,
+                          hintText: 'phone number',
+                          onChanged: (value) => {
+                            if (value.isNotEmpty &&
+                                value.contains(RegExp(r'^[0-9]+$')))
+                              {
+                                setState(() {
+                                  phone = int.parse(value);
+                                })
+                              }
+                          },
+                        ),
+                        SizedBox(height: 10),
+                        CustomTextField(
+                          validator: (value) => value!.isEmpty
+                              ? "Enter your shop location"
+                              : null,
+                          hintText: 'shop location',
+                          onChanged: (value) =>
+                              {setState(() => location = value)},
+                        ),
+                        SizedBox(height: 10),
                         CustomTextField(
                           validator: _validate.validateEmail,
                           hintText: 'email ',
@@ -74,15 +116,14 @@ class _ClientRegistrationState extends State<ClientRegistration> {
                             children: [
                               TextButton(
                                 onPressed: () async {
-                                  widget.toggleView();
-                                  Navigator.pop(context);
+                                  widget.toggleView('');
                                 },
                                 child: Text("Sign in"),
                               ),
                               Spacer(),
                               TextButton(
                                 onPressed: () async {
-                                  Navigator.pop(context);
+                                  widget.toggleView('custReg');
                                 },
                                 child: Text("customer Sign up"),
                               ),
@@ -96,13 +137,21 @@ class _ClientRegistrationState extends State<ClientRegistration> {
                               setState(() {
                                 loading = true;
                               });
-                              String result = await _auth.signUp(
-                                  email, password, confirmPassword);
+                              String result = await _auth.createClientUser(
+                                  email,
+                                  password,
+                                  confirmPassword,
+                                  shopName,
+                                  ownerName,
+                                  phone,
+                                  location);
 
-                              setState(() {
-                                loading = false;
-                                ServerError = result;
-                              });
+                              if (mounted) {
+                                setState(() {
+                                  loading = false;
+                                  ServerError = result;
+                                });
+                              }
                             }
                           },
                           child: Text('register'),

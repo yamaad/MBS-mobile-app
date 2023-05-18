@@ -1,28 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:mbs_fyp/screens/authenticate/signin.dart';
 import 'package:mbs_fyp/screens/authenticate/registeration/CustomerSignup.dart';
+import 'package:mbs_fyp/screens/authenticate/registeration/clientRegisteration.dart';
+import 'package:mbs_fyp/screens/authenticate/signin.dart';
 
 class Authenticate extends StatefulWidget {
-  const Authenticate({super.key});
 
   @override
   State<Authenticate> createState() => _AuthenticateState();
 }
 
 class _AuthenticateState extends State<Authenticate> {
-  bool showRegisterPage = false;
-  void toggleView() {
+  String _currentPage = 'signin';
+
+  void _toggleView(String page) {
     setState(() {
-      showRegisterPage = !showRegisterPage;
+      _currentPage = page;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: showRegisterPage
-          ? CustomerSignup(toggleView: toggleView)
-          : Signin(toggleView: toggleView),
-    );
+    Widget pageToDisplay;
+    switch (_currentPage) {
+      case 'custReg':
+        pageToDisplay = CustomerSignup(toggleView: _toggleView);
+        break;
+      case 'clientReg':
+        pageToDisplay = ClientRegistration(toggleView: _toggleView);
+        break;
+      // case 'customerDashboard':
+      //   pageToDisplay = CustomerDashboard();
+      //   break;
+      // case 'clientDashboard':
+      //   pageToDisplay = ClientDashboard();
+      //   break;
+      default:
+        pageToDisplay = Signin(toggleView: _toggleView);
+        break;
+    }
+    return pageToDisplay;
   }
 }

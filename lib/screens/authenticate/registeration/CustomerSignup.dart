@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:mbs_fyp/components/loading.dart';
 import 'package:mbs_fyp/models/validator.dart';
 import 'package:mbs_fyp/screens/authenticate/registeration/clientRegisteration.dart';
@@ -9,7 +7,7 @@ import 'package:mbs_fyp/services/authService.dart';
 import '../../../components/customTextField.dart';
 
 class CustomerSignup extends StatefulWidget {
-  final Function toggleView;
+  final toggleView;
   const CustomerSignup({required this.toggleView});
 
   @override
@@ -71,8 +69,15 @@ class _CustomerSignupState extends State<CustomerSignup> {
                           validator: (value) =>
                               value!.isEmpty ? "Enter your phone number" : null,
                           hintText: 'phone number',
-                          onChanged: (value) =>
-                              {setState(() => phone = int.parse(value))},
+                          onChanged: (value) => {
+                            if (value.isNotEmpty &&
+                                value.contains(RegExp(r'^[0-9]+$')))
+                              {
+                                setState(() {
+                                  phone = int.parse(value);
+                                })
+                              }
+                          },
                         ),
                         SizedBox(height: 10),
                         CustomTextField(
@@ -121,21 +126,14 @@ class _CustomerSignupState extends State<CustomerSignup> {
                             children: [
                               TextButton(
                                 onPressed: () async {
-                                  widget.toggleView();
+                                  widget.toggleView('');
                                 },
                                 child: Text("Sign in"),
                               ),
                               Spacer(),
                               TextButton(
                                 onPressed: () async {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            ClientRegistration(
-                                              toggleView: widget.toggleView,
-                                            )),
-                                  );
+                                  widget.toggleView('clientReg');
                                 },
                                 child: Text("Register as a shop"),
                               ),
@@ -149,7 +147,7 @@ class _CustomerSignupState extends State<CustomerSignup> {
                               setState(() {
                                 loading = true;
                               });
-                              String result = await _auth.CreateCustUser(
+                              String result = await _auth.createCustUser(
                                   email,
                                   password,
                                   confirmPassword,

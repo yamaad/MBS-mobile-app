@@ -13,7 +13,6 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key});
 
   // This widget is the root of your application.
   @override
@@ -22,7 +21,7 @@ class MyApp extends StatelessWidget {
       value: AuthSevrices().user,
       initialData: null,
       child: MaterialApp(
-        home: Wrapper(),
+        home: Wrapper(services: AuthSevrices()),
       ), 
     );
   }
