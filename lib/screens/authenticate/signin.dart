@@ -20,7 +20,6 @@ class _SigninState extends State<Signin> {
   String ServerError = '';
   String email = '';
   String password = '';
-
   @override
   Widget build(BuildContext context) {
     return loading
@@ -65,7 +64,7 @@ class _SigninState extends State<Signin> {
                       ),
                       Spacer(),
                       TextButton(
-                        onPressed: () async {},
+                              onPressed: () async {},
                         child: Text("forgot password"),
                       ),
                     ],

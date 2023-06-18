@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mbs_fyp/components/loading.dart';
 import 'package:mbs_fyp/models/user.dart';
 import 'package:mbs_fyp/screens/authenticate/authenticate.dart';
-import 'package:mbs_fyp/screens/home/customer/customerHome.dart';
+import 'package:mbs_fyp/screens/client/dashbord.dart';
+import 'package:mbs_fyp/screens/customer/customerHome.dart';
 import 'package:mbs_fyp/services/authService.dart';
 import 'package:provider/provider.dart';
 
@@ -27,7 +28,7 @@ class Wrapper extends StatelessWidget {
           } else {
             final userType = snapshot.data;
             if (userType == 'client') {
-              return CustomerHome(); //! client!
+              return Dashboard();
             } else {
               return CustomerHome();
             }

@@ -147,7 +147,7 @@ class _CustomerSignupState extends State<CustomerSignup> {
                               setState(() {
                                 loading = true;
                               });
-                              String result = await _auth.createCustUser(
+                              String? result = await _auth.createCustUser(
                                   email,
                                   password,
                                   confirmPassword,
@@ -159,7 +159,7 @@ class _CustomerSignupState extends State<CustomerSignup> {
                               if (mounted) {
                                 setState(() {
                                   loading = false;
-                                  ServerError = result;
+                                  ServerError = result!;
                                 });
                               }
                             }

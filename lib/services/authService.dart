@@ -130,4 +130,5 @@ Future<String> getUserType() async {
     return "No user logged in";
   }
 
+
 }
