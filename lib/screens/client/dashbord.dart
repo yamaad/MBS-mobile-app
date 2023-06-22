@@ -138,29 +138,28 @@ class _DashboardState extends State<Dashboard> {
             }),
           ),
           Text("Orders"),
-          // CustomScrollView(
-          //   slivers: <Widget>[
-          //     SliverToBoxAdapter(
-          //       child: Wrap(
-          //         children: [
-          //           ListView.builder(
-          //             itemCount: orders.length,
-          //             itemBuilder: (BuildContext context, int index) {
-          //               String order = orders[index];
-          //               return ListTile(
-          //                 title: Text('Order ${index + 1}'),
-          //                 subtitle: Text('Status: ${index + 1} status'),
-          //                 onTap: () {
-          //                   // Handle order tap event
-          //                 },
-          //               );
-          //             },
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   ],
-          // )
+          Expanded(
+            child: CustomScrollView(
+              slivers: [
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (BuildContext context, int index) {
+                      String order = orders[index];
+                      return ListTile(
+                        title: Text('Order ${index + 1}'),
+                        subtitle: Text('Status: ${index + 1} status'),
+                        onTap: () {
+                          // Handle order tap event
+                        },
+                      );
+                    },
+                    childCount: orders.length,
+                  ),
+                ),
+              ],
+            ),
+          )
+
         ]),
       ),
     );

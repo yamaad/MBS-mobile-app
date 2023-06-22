@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/user.dart';
+import 'locationServeices.dart';
 
 class AuthSevrices {
   FirebaseFirestore db = FirebaseFirestore.instance;
@@ -29,7 +31,7 @@ class AuthSevrices {
     final shopName,
     final ownerName,
     int phone,
-    final location,
+    final address,
   ) async {
     if (password == confirmPassword) {
       try {
@@ -38,14 +40,20 @@ class AuthSevrices {
           email: email,
           password: password,
         );
+        final location = await LocationServices.getLatLngFromAddress(address);
         await db.collection("user").doc(credential.user!.uid).set({
           "uid": credential.user!.uid,
           "shopName": shopName,
           "ownerName": ownerName,
           "phone": phone,
           "email": email,
-          "location": location,
+          "address": address,
+          "location": {
+            "latitude": location.latitude,
+            "longitude": location.longitude,
+          },
           "userType": "client",
+
         });
         return '';
 
@@ -130,5 +138,21 @@ Future<String> getUserType() async {
     return "No user logged in";
   }
 
+Future<List<Map<String, dynamic>>> getClientUsersOrderedByLocation() async {
+    final userType = 'client';
+    final docRef = db.collection('user');
+
+    final snapshot = await docRef
+        .where('userType', isEqualTo: userType)
+        .orderBy('location')
+        .get();
+
+    List<Map<String, dynamic>> userList = [];
+    snapshot.docs.forEach((doc) {
+      userList.add(doc.data());
+    });
+    print("xxxxxxxxxxxx: " + userList.toString());
+    return userList;
+  }
 
 }
