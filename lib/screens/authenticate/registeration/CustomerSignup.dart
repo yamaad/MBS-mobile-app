@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mbs_fyp/components/loading.dart';
 import 'package:mbs_fyp/models/validator.dart';
-import 'package:mbs_fyp/screens/authenticate/registeration/clientRegisteration.dart';
 import 'package:mbs_fyp/services/authService.dart';
 
 import '../../../components/customTextField.dart';

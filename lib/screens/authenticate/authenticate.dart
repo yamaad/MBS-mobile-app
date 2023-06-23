@@ -1,9 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mbs_fyp/screens/authenticate/registeration/CustomerSignup.dart';
 import 'package:mbs_fyp/screens/authenticate/registeration/clientRegisteration.dart';
 import 'package:mbs_fyp/screens/authenticate/signin.dart';
-import 'package:mbs_fyp/services/authService.dart';
 
 class Authenticate extends StatefulWidget {
 

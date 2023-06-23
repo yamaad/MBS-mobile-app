@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mbs_fyp/components/loading.dart';
 import 'package:mbs_fyp/models/validator.dart';
 import 'package:mbs_fyp/services/authService.dart';

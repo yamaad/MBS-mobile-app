@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:mbs_fyp/components/loading.dart';
+import 'package:mbs_fyp/models/shopInfo.dart';
+import 'package:mbs_fyp/screens/customer/viewStores.dart';
 import 'package:mbs_fyp/services/authService.dart';
 
 import '../../services/locationServeices.dart';
@@ -16,7 +19,7 @@ class _CustomerHomeState extends State<CustomerHome> {
   final AuthSevrices _auth = AuthSevrices();
   GoogleMapController? _mapController;
   Position? _currentPosition;
-
+bool loading = false;
   @override
   void initState() {
     super.initState();
@@ -101,15 +104,31 @@ class _CustomerHomeState extends State<CustomerHome> {
                   topRight: Radius.circular(10.0),
                 ),
               ),
-              child: Column(
+              child: loading
+                  ? Container(height: 80.0, child: Loading())
+                  : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
                     height: 80.0,
                     alignment: Alignment.center,
                     child: ElevatedButton(
-                      onPressed: () {
-                        _auth.getClientUsersOrderedByLocation().toString();
+                            onPressed: () async {
+                              setState(() {
+                                loading = true;
+                              });
+                              final List<ShopInfo> shopInfo =
+                                  await _auth.getClientUsers();
+                              setState(() {
+                                loading = false;
+                              });
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ViewStore(shopInfo: shopInfo)),
+                              );
+
                       },
                       child: Container(
                         width: 120.0,

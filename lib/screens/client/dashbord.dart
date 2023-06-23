@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mbs_fyp/models/user.dart';
 import 'package:mbs_fyp/services/authService.dart';
+import 'package:mbs_fyp/services/shopServices.dart';
+import 'package:provider/provider.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -10,46 +13,63 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   final AuthSevrices _auth = AuthSevrices();
-  String status = "online";
+  final ShopServices _shopServices = ShopServices();
+  bool status = true;
+  String? clientID;
   String switchStatus = "go offline";
-  List<bool> checkboxValues = List<bool>.filled(6, false);
-  List<String> servicesList = [
-    "on spot checkout",
-    "insurance renewal",
-    "gasoline",
-    "battery",
-    "spare parts",
-    "others"
+  // List<bool> checkboxValues = List<bool>.filled(6, false);
+  List<Map<String, dynamic>> servicesList = [
+    {'services': "on spot checkout", 'availablity': false},
+    {'services': "insurance renewal", 'availablity': false},
+    {'services': "gasoline", 'availablity': false},
+    {'services': "battery", 'availablity': false},
+    {'services': "spare parts", 'availablity': false},
+    {'services': "others", 'availablity': false},
   ];
+
   List<String> orders = [
-    "order1",
-    "order1",
-    "order1",
-    "order1",
     "order1",
     "order1",
     "order1",
   ];
   Color textColor() {
-    return status == "online" ? Colors.green : Colors.red;
+    return status ? Colors.green : Colors.red;
   }
 
-  void toggleSwitch() async {
-    if (status == "online") {
+  void toggleSwitch(String userID) async {
+    await _shopServices.updateClientStatus(userID, !status);
+    status = await _shopServices.getStatus(userID);
+    if (status) {
       setState(() {
-        switchStatus = "go online";
-        status = "offline";
+        switchStatus = "go offline";
       });
     } else {
       setState(() {
-        status = "online";
-        switchStatus = "go offline";
+        switchStatus = "go online";
       });
+    }
+  }
+
+  List<String> updateSrvicesList() {
+    List<String> availableServices = servicesList
+        .where((service) => service['availability'] == true)
+        .map((service) => service['services'] as String)
+        .toList();
+    return availableServices;
+  }
+
+  void fetchServicesList(String clientID) async {
+    List<String> firestoreServices = await _shopServices.getServices(clientID);
+    for (var service in servicesList) {
+      final serviceName = service['services'];
+      final isAvailable = firestoreServices.contains(serviceName);
+      service['availability'] = isAvailable;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<MbsUser?>(context);
     return Scaffold(
       backgroundColor: Colors.brown[50],
       appBar: AppBar(
@@ -90,7 +110,7 @@ class _DashboardState extends State<Dashboard> {
                       // mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          status,
+                          status ? "online" : "offline",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 24.0,
@@ -98,7 +118,9 @@ class _DashboardState extends State<Dashboard> {
                           ),
                         ),
                         ElevatedButton(
-                          onPressed: toggleSwitch,
+                          onPressed: () {
+                            toggleSwitch(user!.uid);
+                          },
                           child: Text(
                             switchStatus,
                             style: TextStyle(
@@ -120,19 +142,24 @@ class _DashboardState extends State<Dashboard> {
             ],
           ),
           Wrap(
-            children: List.generate(6, (index) {
+            children: List.generate(servicesList.length, (index) {
+              bool availability = servicesList[index]['availability'] ?? false;
               return Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Checkbox(
-                    value: checkboxValues[index],
-                    onChanged: (bool? value) {
+                    value: availability,
+                    onChanged: (bool? value) async {
+
                       setState(() {
-                        checkboxValues[index] = value ?? false;
+                        servicesList[index]['availability'] = value;
                       });
+                      await _shopServices.updateClientServices(
+                          user!.uid, updateSrvicesList());
+
                     },
                   ),
-                  Text(servicesList[index]),
+                  Text(servicesList[index]['services']),
                 ],
               );
             }),
@@ -159,7 +186,6 @@ class _DashboardState extends State<Dashboard> {
               ],
             ),
           )
-
         ]),
       ),
     );

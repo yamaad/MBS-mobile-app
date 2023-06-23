@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../models/shopInfo.dart';
 import '../models/user.dart';
 import 'locationServeices.dart';
 
@@ -53,10 +52,13 @@ class AuthSevrices {
             "longitude": location.longitude,
           },
           "userType": "client",
-
+          "services": [] as String,
+          "pricing": 5.0,
+          "pricingCount": 0,
+          "service": 5.0,
+          "serviceCount": 0,
         });
         return '';
-
       } on FirebaseAuthException catch (e) {
         if (e.code == 'email-already-in-use') {
           return 'The account already exists for that email.';
@@ -112,7 +114,7 @@ class AuthSevrices {
   // sign in
   Future signIn(final emailAddress, final password) async {
     try {
-      final credential = await FirebaseAuth.instance
+      await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: emailAddress, password: password);
       return '';
     } catch (e) {
@@ -125,7 +127,7 @@ class AuthSevrices {
     await FirebaseAuth.instance.signOut();
   }
 
-Future<String> getUserType() async {
+  Future<String> getUserType() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final docRef = db.collection("user").doc(user.uid);
@@ -138,21 +140,21 @@ Future<String> getUserType() async {
     return "No user logged in";
   }
 
-Future<List<Map<String, dynamic>>> getClientUsersOrderedByLocation() async {
+  Future<List<ShopInfo>> getClientUsers() async {
     final userType = 'client';
     final docRef = db.collection('user');
 
     final snapshot = await docRef
         .where('userType', isEqualTo: userType)
-        .orderBy('location')
+        .where('status', isEqualTo: true)
         .get();
 
-    List<Map<String, dynamic>> userList = [];
+    List<ShopInfo> userList = [];
     snapshot.docs.forEach((doc) {
-      userList.add(doc.data());
+      final shopInfo = ShopInfo.fromMap(doc.data());
+      userList.add(shopInfo);
     });
-    print("xxxxxxxxxxxx: " + userList.toString());
+    userList = await LocationServices.sortShopList(userList);
     return userList;
   }
-
 }
