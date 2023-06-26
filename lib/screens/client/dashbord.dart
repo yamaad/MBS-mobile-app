@@ -1,11 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:mbs_fyp/models/shopInfo.dart';
 import 'package:mbs_fyp/models/user.dart';
+import 'package:mbs_fyp/screens/client/viewOrderDetials.dart';
 import 'package:mbs_fyp/services/authService.dart';
 import 'package:mbs_fyp/services/shopServices.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/orderInfo.dart';
+import '../../services/orderServcies.dart';
+import '../../components/OrderRequest.dart';
+import 'dashBoardFunctions.dart';
+
 class Dashboard extends StatefulWidget {
-  const Dashboard({Key? key}) : super(key: key);
+  final currentUserUid;
+  const Dashboard({required this.currentUserUid});
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -14,26 +24,99 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   final AuthSevrices _auth = AuthSevrices();
   final ShopServices _shopServices = ShopServices();
-  bool status = true;
+  final OrderServices _orderServices = OrderServices();
+
+  StreamController<List<OrderInfo>> _ordersStreamController =
+      StreamController<List<OrderInfo>>.broadcast();
+  Stream<List<OrderInfo>> get ordersStream => _ordersStreamController.stream;
+  late StreamSubscription _ordersSubscription;
+
+  // bool status = true;
   String? clientID;
-  String switchStatus = "go offline";
-  // List<bool> checkboxValues = List<bool>.filled(6, false);
+  bool status = false;
+  String switchStatus = "go online";
   List<Map<String, dynamic>> servicesList = [
-    {'services': "on spot checkout", 'availablity': false},
-    {'services': "insurance renewal", 'availablity': false},
-    {'services': "gasoline", 'availablity': false},
-    {'services': "battery", 'availablity': false},
-    {'services': "spare parts", 'availablity': false},
-    {'services': "others", 'availablity': false},
+    {'services': "on spot checkout", 'availability': false},
+    {'services': "insurance renewal", 'availability': false},
+    {'services': "gasoline", 'availability': false},
+    {'services': "battery", 'availability': false},
+    {'services': "spare parts", 'availability': false},
   ];
 
-  List<String> orders = [
-    "order1",
-    "order1",
-    "order1",
-  ];
-  Color textColor() {
-    return status ? Colors.green : Colors.red;
+  List<OrderInfo> orders = [];
+  ScrollController _scrollController = ScrollController();
+  @override
+  void initState() {
+    super.initState();
+    getshopStatus();
+    fetchOrdersStream(widget.currentUserUid);
+    fectchOrdersHistory(widget.currentUserUid);
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        // Fetch more orders
+        if (mounted) {
+          fectchOrdersHistory(widget.currentUserUid);
+        }
+      }
+    });
+  }
+
+  void getshopStatus() async {
+    ShopInfo shop = await _auth.getCurrentShopData();
+    status = shop.status;
+    if (status) {
+      setState(() {
+        switchStatus = "go offline";
+      });
+    }
+    for (int i = 0; i < servicesList.length; i++) {
+      String service = servicesList[i]['services'];
+      bool isAvailable = shop.services.contains(service);
+      setState(() {
+        servicesList[i]['availability'] = isAvailable;
+      });
+    }
+  }
+
+  void fectchOrdersHistory(final currentUserUid) async {
+    if (mounted) {
+      List<OrderInfo> fetchedOrders =
+          await _orderServices.getOrdersHistory(currentUserUid);
+      setState(() {
+        orders = fetchedOrders;
+      });
+    }
+  }
+
+  void fetchOrdersStream(final currentUserUid) async {
+    if (mounted) {
+      Stream<List<OrderInfo>> ordersStream =
+          await _orderServices.streamPendingOrders();
+      final shop = await _auth.getCurrentShopData();
+
+      _ordersSubscription = ordersStream.listen((List<OrderInfo> orders) {
+        if (orders.isNotEmpty) {
+          if (orders.last.shopUid == currentUserUid ||
+              orders.last.shopUid == '')
+            showOrdersDialog(context, orders.last, shop);
+        }
+      });
+    }
+  }
+
+  void onSignOut(String userID) async {
+    await _shopServices.updateClientStatus(userID, false);
+  }
+
+  @override
+  void dispose() {
+    _ordersStreamController.close();
+    _scrollController.dispose();
+    _ordersSubscription.cancel();
+    onSignOut(widget.currentUserUid);
+    super.dispose();
   }
 
   void toggleSwitch(String userID) async {
@@ -114,7 +197,7 @@ class _DashboardState extends State<Dashboard> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 24.0,
-                            color: textColor(),
+                            color: DashboardFunctions.shopStatusColor(status),
                           ),
                         ),
                         ElevatedButton(
@@ -150,13 +233,11 @@ class _DashboardState extends State<Dashboard> {
                   Checkbox(
                     value: availability,
                     onChanged: (bool? value) async {
-
                       setState(() {
                         servicesList[index]['availability'] = value;
                       });
                       await _shopServices.updateClientServices(
                           user!.uid, updateSrvicesList());
-
                     },
                   ),
                   Text(servicesList[index]['services']),
@@ -164,19 +245,29 @@ class _DashboardState extends State<Dashboard> {
               );
             }),
           ),
-          Text("Orders"),
+          Text(
+            "Orders History",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           Expanded(
             child: CustomScrollView(
+              controller: _scrollController,
               slivers: [
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (BuildContext context, int index) {
-                      String order = orders[index];
+                      OrderInfo order = orders[index];
                       return ListTile(
-                        title: Text('Order ${index + 1}'),
-                        subtitle: Text('Status: ${index + 1} status'),
+                        title: Text('Order ${order.orderNo}'),
+                        subtitle: Text(
+                          '${order.status}',
+                          style: TextStyle(
+                              color: DashboardFunctions.orderStatusColor(
+                                  order.status)),
+                        ),
                         onTap: () {
                           // Handle order tap event
+                          viewOrderDetails(context, order);
                         },
                       );
                     },

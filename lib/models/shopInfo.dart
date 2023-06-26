@@ -11,6 +11,7 @@ class ShopInfo {
   final int serviceCount;
   final num pricing;
   final int pricingCount;
+  bool status;
 
   ShopInfo({
     required this.uid,
@@ -23,9 +24,13 @@ class ShopInfo {
     required this.serviceCount,
     required this.pricing,
     required this.pricingCount,
+    required this.status,
   });
 
-  factory ShopInfo.fromMap(Map<String, dynamic> map) {
+  factory ShopInfo.fromMap(Map<String, dynamic>? map) {
+    if (map == null) {
+      throw Exception("Invalid user data");
+    }
     final location = LatLng(
       map['location']['latitude'],
       map['location']['longitude'],
@@ -42,6 +47,7 @@ class ShopInfo {
       serviceCount: map['serviceCount'],
       pricing: map['pricing'],
       pricingCount: map['pricingCount'],
+      status: map["status"] as bool,
     );
   }
 }

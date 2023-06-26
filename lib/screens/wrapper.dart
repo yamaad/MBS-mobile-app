@@ -28,7 +28,9 @@ class Wrapper extends StatelessWidget {
           } else {
             final userType = snapshot.data;
             if (userType == 'client') {
-              return Dashboard();
+              return Dashboard(
+                currentUserUid: user.uid,
+              );
             } else if (userType == 'customer') {
               return CustomerHome();
             } else {

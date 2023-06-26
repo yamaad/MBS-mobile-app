@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mbs_fyp/components/viewStoreCard.dart';
 import 'package:mbs_fyp/models/shopInfo.dart';
+import 'package:mbs_fyp/services/orderServcies.dart';
 
+import '../../models/customerUser.dart';
 import '../../services/authService.dart';
 
 class ViewStore extends StatefulWidget {
@@ -14,6 +16,7 @@ class ViewStore extends StatefulWidget {
 
 class _ViewStoreState extends State<ViewStore> {
   final AuthSevrices _auth = AuthSevrices();
+  final OrderServices _orderServices = OrderServices();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,18 +26,7 @@ class _ViewStoreState extends State<ViewStore> {
         elevation: 0.0,
         title: Text("STORES"),
         centerTitle: true,
-        actions: <Widget>[
-          TextButton.icon(
-            onPressed: () async {
-              await _auth.signOut();
-            },
-            icon: Icon(Icons.person),
-            label: Text("logout"),
-            style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-            ),
-          ),
-        ],
+        
       ),
       body: Container(
         padding: EdgeInsets.all(10.0),
@@ -93,7 +85,15 @@ class _ViewStoreState extends State<ViewStore> {
                               Text(option),
                             ],
                           ),
-                          onTap: () {},
+                          onTap: () async {
+                            CustomerUser biker =
+                                await _auth.getCurrentUserData();
+                            await _orderServices.createOrder(
+                                biker,
+                                widget.shopInfo[index].uid,
+                                option,
+                                widget.shopInfo[index].phone);
+                          },
                         );
                       }).toList(),
                     );

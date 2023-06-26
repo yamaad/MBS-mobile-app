@@ -6,7 +6,9 @@ import 'package:mbs_fyp/models/shopInfo.dart';
 import 'package:mbs_fyp/screens/customer/viewStores.dart';
 import 'package:mbs_fyp/services/authService.dart';
 
+import '../../models/customerUser.dart';
 import '../../services/locationServeices.dart';
+import '../../services/orderServcies.dart';
 
 class CustomerHome extends StatefulWidget {
   const CustomerHome({Key? key}) : super(key: key);
@@ -17,9 +19,11 @@ class CustomerHome extends StatefulWidget {
 
 class _CustomerHomeState extends State<CustomerHome> {
   final AuthSevrices _auth = AuthSevrices();
+  final OrderServices _orderServices = OrderServices();
+
   GoogleMapController? _mapController;
   Position? _currentPosition;
-bool loading = false;
+  bool loading = false;
   @override
   void initState() {
     super.initState();
@@ -107,12 +111,12 @@ bool loading = false;
               child: loading
                   ? Container(height: 80.0, child: Loading())
                   : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: 80.0,
-                    alignment: Alignment.center,
-                    child: ElevatedButton(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          height: 80.0,
+                          alignment: Alignment.center,
+                          child: ElevatedButton(
                             onPressed: () async {
                               setState(() {
                                 loading = true;
@@ -128,49 +132,84 @@ bool loading = false;
                                     builder: (context) =>
                                         ViewStore(shopInfo: shopInfo)),
                               );
-
-                      },
-                      child: Container(
-                        width: 120.0,
-                        height: 60.0,
-                        alignment: Alignment.center,
-                        child: Text(
-                          'View Stores',
-                          style: TextStyle(
-                            color: Colors.brown,
-                            fontSize: 20.0,
+                            },
+                            child: Container(
+                              width: 120.0,
+                              height: 60.0,
+                              alignment: Alignment.center,
+                              child: Text(
+                                'View Stores',
+                                style: TextStyle(
+                                  color: Colors.brown,
+                                  fontSize: 20.0,
+                                ),
+                              ),
+                            ),
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.grey.shade300),
+                            ),
                           ),
                         ),
-                      ),
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            Colors.grey.shade300),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 16.0),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Button 2 action...
-                    },
-                    child: Container(
-                      width: 120.0,
-                      height: 48.0,
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Make Order',
-                        style: TextStyle(
-                          fontSize: 20.0,
+                        SizedBox(width: 16.0),
+                        ElevatedButton(
+                          onPressed: () {
+                            final RenderBox button =
+                                context.findRenderObject() as RenderBox;
+                            final Offset offset =
+                                button.localToGlobal(Offset.zero);
+                            final List<String> servicelist = [
+                              "on spot checkout",
+                              "insurance renewal",
+                              "gasoline",
+                              "battery",
+                              "spare parts",
+                            ];
+                            // Show the menu
+                            showMenu<String>(
+                              context: context,
+                              position: RelativeRect.fromLTRB(
+                                offset.dx,
+                                offset.dy + button.size.height,
+                                offset.dx + button.size.width,
+                                offset.dy + button.size.height * 2,
+                              ),
+                              items: servicelist.map((String option) {
+                                return PopupMenuItem<String>(
+                                  value: option,
+                                  child: Row(
+                                    children: [
+                                      Text(option),
+                                    ],
+                                  ),
+                                  onTap: () async {
+                                    CustomerUser biker =
+                                        await _auth.getCurrentUserData();
+                                    await _orderServices.createOrder(
+                                        biker, null, option, null);
+                                  },
+                                );
+                              }).toList(),
+                            );
+                          },
+                          child: Container(
+                            width: 120.0,
+                            height: 48.0,
+                            alignment: Alignment.center,
+                            child: Text(
+                              'Make Order',
+                              style: TextStyle(
+                                fontSize: 20.0,
+                              ),
+                            ),
+                          ),
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all<Color>(Colors.brown),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.brown),
-                    ),
-                  ),
-                ],
-              ),
             ),
           )
         ],

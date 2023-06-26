@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mbs_fyp/models/customerUser.dart';
 import '../models/shopInfo.dart';
 import '../models/user.dart';
 import 'locationServeices.dart';
@@ -157,4 +158,34 @@ class AuthSevrices {
     userList = await LocationServices.sortShopList(userList);
     return userList;
   }
+Future<CustomerUser> getCurrentUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final docRef = db.collection("user").doc(user.uid);
+      final doc = await docRef.get();
+      if (doc.exists) {
+        // Extract the user data from the document
+        final userData = CustomerUser.fromMap(doc.data());
+        return userData;
+      }
+      throw Exception("User not found");
+    }
+    throw Exception("No user logged in");
+  }
+
+  Future<ShopInfo> getCurrentShopData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final docRef = db.collection("user").doc(user.uid);
+      final doc = await docRef.get();
+      if (doc.exists) {
+        // Extract the user data from the document
+        final userData = ShopInfo.fromMap(doc.data());
+        return userData;
+      }
+      throw Exception("User not found");
+    }
+    throw Exception("No user logged in");
+  }
+
 }
