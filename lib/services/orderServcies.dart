@@ -94,4 +94,18 @@ class OrderServices {
     }
     return ordersHistory;
   }
+
+  Future<List<OrderInfo>> getCustOrdersHistory(String currentUserUid) async {
+    QuerySnapshot data;
+
+    data = await ordersCollection
+        .where('bikerUid', isEqualTo: currentUserUid)
+        .orderBy('creationTime', descending: true)
+        .get();
+    
+    for (final doc in data.docs) {
+      ordersHistory.add(OrderInfo.fromMap(doc.data() as Map<String, dynamic>));
+    }
+    return ordersHistory;
+  }
 }

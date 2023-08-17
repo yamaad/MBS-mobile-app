@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as maps;
@@ -9,7 +12,32 @@ import 'dart:convert';
 import '../models/shopInfo.dart';
 
 class LocationServices {
-  static const String apiKey = 'AIzaSyCl5TeBOssEs8oTCXkK4ZBRjRYe4iXQcO0';
+  final apiKey = dotenv.env['GOOGLE_API_KEY'] ?? '';
+
+  Future<void> requestLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permission still denied, show a message or handle accordingly
+        print('Location permission denied.');
+      } else if (permission == LocationPermission.deniedForever) {
+        // Permission denied forever, handle accordingly
+        print('Location permission denied forever.');
+      } else {
+        // Permission granted, proceed with location-related tasks
+        print('Location permission granted.');
+      }
+    } else if (permission == LocationPermission.deniedForever) {
+      // Permission denied forever, handle accordingly
+      print('Location permission denied forever.');
+    } else {
+      // Permission already granted, proceed with location-related tasks
+      print('Location permission already granted.');
+    }
+  }
+
 
   static Future<Position> getCurrentLocation() async {
     PermissionStatus status = await Permission.location.request();
@@ -73,22 +101,26 @@ class LocationServices {
   static Future<double> calculateDistance(maps.LatLng destination) async {
     Position loc = await getCurrentLocation();
     maps.LatLng origin = maps.LatLng(loc.latitude, loc.longitude);
-
+    final location = LocationServices();
+    final api = location.apiKey;
     String url = 'https://maps.googleapis.com/maps/api/distancematrix/json'
         '?origins=${origin.latitude},${origin.longitude}'
         '&destinations=${destination.latitude},${destination.longitude}'
-        '&key=$apiKey';
+        '&key=$api';
 
     // Make the HTTP request
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
       // Parse the response JSON
+      print("******* response.body: *******");
+      print(response.body);
       final data = jsonDecode(response.body);
 
       // Extract the distance value from the response
       String distanceText = data['rows'][0]['elements'][0]['distance']['text'];
       double distanceValue =
+
           data['rows'][0]['elements'][0]['distance']['value'].toDouble();
 
       return distanceValue;

@@ -188,4 +188,11 @@ Future<CustomerUser> getCurrentUserData() async {
     throw Exception("No user logged in");
   }
 
+  Future<ShopInfo> getShopData(String uid) async {
+    final docRef = db.collection("user").doc(uid);
+    final doc = await docRef.get();
+    final userData = ShopInfo.fromMap(doc.data());
+    return userData;
+  }
+
 }

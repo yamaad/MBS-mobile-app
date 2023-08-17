@@ -3,10 +3,13 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mbs_fyp/components/loading.dart';
 import 'package:mbs_fyp/models/shopInfo.dart';
+import 'package:mbs_fyp/screens/customer/customerOrderHistory.dart';
 import 'package:mbs_fyp/screens/customer/viewStores.dart';
 import 'package:mbs_fyp/services/authService.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/customerUser.dart';
+import '../../models/user.dart';
 import '../../services/locationServeices.dart';
 import '../../services/orderServcies.dart';
 
@@ -50,6 +53,7 @@ class _CustomerHomeState extends State<CustomerHome> {
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<MbsUser?>(context);
     return Scaffold(
       backgroundColor: Colors.brown[50],
       appBar: AppBar(
@@ -57,6 +61,13 @@ class _CustomerHomeState extends State<CustomerHome> {
         elevation: 0.0,
         title: Text("Home"),
         centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.history),
+          onPressed: () {
+            showOrdersHistory(context, user!.uid);
+          },
+        ),
+
         actions: <Widget>[
           TextButton.icon(
             onPressed: () async {

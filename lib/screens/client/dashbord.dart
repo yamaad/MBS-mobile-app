@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:mbs_fyp/models/shopInfo.dart';
 import 'package:mbs_fyp/models/user.dart';
@@ -7,8 +6,8 @@ import 'package:mbs_fyp/screens/client/viewOrderDetials.dart';
 import 'package:mbs_fyp/services/authService.dart';
 import 'package:mbs_fyp/services/shopServices.dart';
 import 'package:provider/provider.dart';
-
 import '../../models/orderInfo.dart';
+import '../../services/locationServeices.dart';
 import '../../services/orderServcies.dart';
 import '../../components/OrderRequest.dart';
 import 'dashBoardFunctions.dart';
@@ -45,8 +44,16 @@ class _DashboardState extends State<Dashboard> {
 
   List<OrderInfo> orders = [];
   ScrollController _scrollController = ScrollController();
+  LocationServices _locationServices = LocationServices();
+
+
+
+
+
+
   @override
   void initState() {
+    requestLocationPermission();
     super.initState();
     getshopStatus();
     fetchOrdersStream(widget.currentUserUid);
@@ -61,6 +68,10 @@ class _DashboardState extends State<Dashboard> {
         }
       }
     });
+  }
+
+  void requestLocationPermission() async {
+    await _locationServices.requestLocationPermission();
   }
 
   void getshopStatus() async {
@@ -79,6 +90,8 @@ class _DashboardState extends State<Dashboard> {
       });
     }
   }
+  
+
 
   void fectchOrdersHistory(final currentUserUid) async {
     if (mounted) {
@@ -116,7 +129,10 @@ class _DashboardState extends State<Dashboard> {
     _scrollController.dispose();
     _ordersSubscription.cancel();
     onSignOut(widget.currentUserUid);
+
     super.dispose();
+
+
   }
 
   void toggleSwitch(String userID) async {
