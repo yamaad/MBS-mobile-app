@@ -195,4 +195,33 @@ Future<CustomerUser> getCurrentUserData() async {
     return userData;
   }
 
+Future updateCustomerInfo(
+      int phone, final motorcycleType, final motorcycleNumber) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final docRef = db.collection("user").doc(user.uid);
+      await docRef.update({
+        'phone': phone,
+        'motorcycleNumber': motorcycleNumber,
+        'motorcycleType': motorcycleType
+      });
+    }
+  }
+
+  Future<dynamic> getBikerInfo(final fieldName) async {
+    final user = FirebaseAuth.instance.currentUser;
+    dynamic fieldValue;
+    if (user != null) {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('user')
+          .doc(user.uid)
+          .get();
+      fieldValue = snapshot[fieldName];
+      return fieldValue;
+    }
+
+    return null;
+  }
+
+  
 }

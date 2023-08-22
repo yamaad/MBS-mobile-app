@@ -23,6 +23,9 @@ class CustomerHome extends StatefulWidget {
 class _CustomerHomeState extends State<CustomerHome> {
   final AuthSevrices _auth = AuthSevrices();
   final OrderServices _orderServices = OrderServices();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController motorcycleNumberController = TextEditingController();
+  TextEditingController motorcycleTypeController = TextEditingController();
 
   GoogleMapController? _mapController;
   Position? _currentPosition;
@@ -67,17 +70,74 @@ class _CustomerHomeState extends State<CustomerHome> {
             showOrdersHistory(context, user!.uid);
           },
         ),
-
         actions: <Widget>[
-          TextButton.icon(
-            onPressed: () async {
-              await _auth.signOut();
+          PopupMenuButton<int>(
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 1,
+                child: Text("Edit Info"),
+              ),
+              PopupMenuItem(
+                value: 2,
+                child: Text("Logout"),
+              ),
+            ],
+            onSelected: (value) async {
+              if (value == 1) {
+                // Handle Edit Info
+                phoneController.text =
+                    (await _auth.getBikerInfo("phone")).toString();
+                motorcycleNumberController.text =
+                    await _auth.getBikerInfo("motorcycleNumber");
+                motorcycleTypeController.text =
+                    await _auth.getBikerInfo("motorcycleType");
+
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text("Edit Info"),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextField(
+                            controller: phoneController,
+                            decoration: InputDecoration(labelText: 'Phone'),
+                          ),
+                          TextField(
+                            controller: motorcycleNumberController,
+                            decoration:
+                                InputDecoration(labelText: 'motorcycleNumber'),
+                          ),
+                          TextField(
+                            controller: motorcycleTypeController,
+                            decoration:
+                                InputDecoration(labelText: 'motorcycleType'),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () async {
+                            await _auth.updateCustomerInfo(
+                                int.parse(phoneController.value.text),
+                                motorcycleNumberController.value.text,
+                                motorcycleTypeController.value.text);
+
+                            Navigator.pop(context);
+                          },
+                          child: Text("Save"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              } else if (value == 2) {
+                await _auth.signOut();
+              }
             },
             icon: Icon(Icons.person),
-            label: Text("logout"),
-            style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-            ),
+            offset: Offset(0, 50), // Adjust the offset if needed
           ),
         ],
       ),
