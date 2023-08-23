@@ -21,6 +21,10 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  TextEditingController brandController = TextEditingController();
+
+  List<dynamic> addedBrands = [];
+
   final AuthSevrices _auth = AuthSevrices();
   final ShopServices _shopServices = ShopServices();
   final OrderServices _orderServices = OrderServices();
@@ -46,15 +50,11 @@ class _DashboardState extends State<Dashboard> {
   ScrollController _scrollController = ScrollController();
   LocationServices _locationServices = LocationServices();
 
-
-
-
-
-
   @override
   void initState() {
     requestLocationPermission();
     super.initState();
+    getAvaiableBrands();
     getshopStatus();
     fetchOrdersStream(widget.currentUserUid);
     fectchOrdersHistory(widget.currentUserUid);
@@ -69,7 +69,9 @@ class _DashboardState extends State<Dashboard> {
       }
     });
   }
-
+  void getAvaiableBrands() async {
+    addedBrands = await _auth.getAvaiableBrands();
+  }
   void requestLocationPermission() async {
     await _locationServices.requestLocationPermission();
   }
@@ -90,8 +92,6 @@ class _DashboardState extends State<Dashboard> {
       });
     }
   }
-  
-
 
   void fectchOrdersHistory(final currentUserUid) async {
     if (mounted) {
@@ -131,8 +131,6 @@ class _DashboardState extends State<Dashboard> {
     onSignOut(widget.currentUserUid);
 
     super.dispose();
-
-
   }
 
   void toggleSwitch(String userID) async {
@@ -190,7 +188,7 @@ class _DashboardState extends State<Dashboard> {
         ],
       ),
       body: Container(
-        margin: EdgeInsets.fromLTRB(15.0, 150.0, 15.0, 0.0),
+        margin: EdgeInsets.fromLTRB(15.0, 75.0, 15.0, 0.0),
         decoration: BoxDecoration(
           color: Colors.brown[100],
           borderRadius: BorderRadius.only(
@@ -206,7 +204,7 @@ class _DashboardState extends State<Dashboard> {
                   padding: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 15.0),
                   child: Container(
                     child: Column(
-                      // mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           status ? "online" : "offline",
@@ -239,6 +237,82 @@ class _DashboardState extends State<Dashboard> {
                 ),
               ),
             ],
+          ),
+          // Add Brand Button
+          ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(
+                  Colors.brown), // Set the button color here
+            ),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("add spare-parts available brands"),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: brandController,
+                          decoration: InputDecoration(labelText: 'brand'),
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () async {
+                          setState(() {
+                            addedBrands.add(brandController.text);
+                          });
+                          await _auth.addBrand(addedBrands);
+                          brandController.text = '';
+                          Navigator.pop(context);
+                        },
+                        child: Text("add"),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: Text("Add Brand"),
+          ),
+
+          // List of Added Brands
+          Wrap(
+            children: List.generate(addedBrands.length, (index) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        addedBrands[index].toString(),
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.blueGrey.shade800,
+                        ),
+                      ), // Display brand name
+                      IconButton(
+                        icon: Icon(
+                          Icons.delete,
+                          color: Colors.red[900],
+                        ),
+                        onPressed: () async {
+                          // Remove the brand from the list when delete button is pressed
+                          setState(() {
+                            addedBrands.remove(addedBrands[index]);
+                          });
+                          await _auth.addBrand(addedBrands);
+                        },
+                      ),
+                    ],
+                  )
+                ],
+              );
+            }),
           ),
           Wrap(
             children: List.generate(servicesList.length, (index) {

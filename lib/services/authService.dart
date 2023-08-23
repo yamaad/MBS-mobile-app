@@ -53,6 +53,7 @@ class AuthSevrices {
             "longitude": location.longitude,
           },
           "userType": "client",
+          "isActive": false,
           "services": [] as String,
           "pricing": 5.0,
           "pricingCount": 0,
@@ -98,6 +99,7 @@ class AuthSevrices {
           "motorcycleType": motorcycleType,
           "motorcycleNumber": motorcycleNumber,
           "userType": "customer",
+          "isActive": true,
         });
         return '';
       } on FirebaseAuthException catch (e) {
@@ -223,5 +225,27 @@ Future updateCustomerInfo(
     return null;
   }
 
+  Future<List<dynamic>> getAvaiableBrands() async {
+    final user = FirebaseAuth.instance.currentUser;
+    List<dynamic> availableBrands = [];
+    if (user != null) {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('brands')
+          .doc(user.uid)
+          .get();
+      availableBrands = snapshot["brands"];
+    }
+    return availableBrands;
+  }
+
+  Future addBrand(List<dynamic> brands) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final docRef = db.collection("brands").doc(user.uid);
+      await docRef.set({
+        'brands': brands,
+      });
+    }
+  }
   
 }
