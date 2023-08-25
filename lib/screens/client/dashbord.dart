@@ -70,7 +70,7 @@ class _DashboardState extends State<Dashboard> {
     });
   }
   void getAvaiableBrands() async {
-    addedBrands = await _auth.getAvaiableBrands();
+    addedBrands = await _auth.getAvaiableBrands(); //! utm account brands error
   }
   void requestLocationPermission() async {
     await _locationServices.requestLocationPermission();

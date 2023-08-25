@@ -7,7 +7,7 @@ import '../../../components/customTextField.dart';
 
 class CustomerSignup extends StatefulWidget {
   final toggleView;
-  const CustomerSignup({required this.toggleView});
+  const CustomerSignup({required this.toggleView(String page)});
 
   @override
   State<CustomerSignup> createState() => _CustomerSignupState();
@@ -125,7 +125,8 @@ class _CustomerSignupState extends State<CustomerSignup> {
                             children: [
                               TextButton(
                                 onPressed: () async {
-                                  widget.toggleView('');
+                                  widget.toggleView("signin");
+
                                 },
                                 child: Text("Sign in"),
                               ),

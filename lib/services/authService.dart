@@ -233,7 +233,7 @@ Future updateCustomerInfo(
           .collection('brands')
           .doc(user.uid)
           .get();
-      availableBrands = snapshot["brands"];
+      availableBrands = snapshot["brands"]; //! utm error
     }
     return availableBrands;
   }

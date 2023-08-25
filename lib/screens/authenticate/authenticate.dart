@@ -27,6 +27,9 @@ class _AuthenticateState extends State<Authenticate> {
       case 'clientReg':
         pageToDisplay = ClientRegistration(toggleView: _toggleView);
         break;
+      case 'signin': // Add this case
+        pageToDisplay = Signin(toggleView: _toggleView);
+        break;
       default:
         pageToDisplay = Signin(toggleView: _toggleView);
         break;

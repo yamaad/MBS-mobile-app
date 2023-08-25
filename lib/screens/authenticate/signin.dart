@@ -77,7 +77,8 @@ class _SigninState extends State<Signin> {
                                 loading = true;
                               });
                         String result = await _auth.signIn(email, password);
-                        setState(() {
+                              setState(() {
+                                //! error
                                 loading = false;
                           ServerError = result;
                         });
