@@ -54,21 +54,33 @@ class AuthSevrices {
           },
           "userType": "client",
           "isActive": false,
-          "services": [] as String,
+          "services": [],
           "pricing": 5.0,
           "pricingCount": 0,
           "service": 5.0,
           "serviceCount": 0,
+          "status": false,
         });
+        await db
+            .collection("brands")
+            .doc(credential.user!.uid)
+            .set({"brands": []});
         return '';
       } on FirebaseAuthException catch (e) {
         if (e.code == 'email-already-in-use') {
+          print(e);
           return 'The account already exists for that email.';
         }
       } catch (e) {
+        print("***** ERROR *****");
+        print(e);
+        print("***** ERROR *****");
         return e.toString();
       }
     } else {
+      print("***** ERROR *****");
+      print("password doesn't match");
+      print("***** ERROR *****");
       return "password doesn't match";
     }
   }
@@ -100,7 +112,9 @@ class AuthSevrices {
           "motorcycleNumber": motorcycleNumber,
           "userType": "customer",
           "isActive": true,
+          
         });
+        
         return '';
       } on FirebaseAuthException catch (e) {
         if (e.code == 'email-already-in-use') {

@@ -79,24 +79,30 @@ class _ClientRegistrationState extends State<ClientRegistration> {
                         },
                       ),
                       SizedBox(height: 10),
-                      Container(
-                        child: Autocomplete<String>(
-                          optionsBuilder:
-                              (TextEditingValue textEditingValue) async {
-                            if (textEditingValue.text == '') {
-                              return const Iterable<String>.empty();
-                            }
-                            addresses = await _locationServices
-                                .searchPlaces(textEditingValue.text);
+                      Column(
+                        children: [
+                          Text(
+                            'Address:', // Add your hint text here
+                          ),
+                          Autocomplete<String>(
+                            optionsBuilder:
+                                (TextEditingValue textEditingValue) async {
+                              if (textEditingValue.text == '') {
+                                return const Iterable<String>.empty();
+                              }
+                              addresses = await _locationServices
+                                  .searchPlaces(textEditingValue.text);
 
-                            return addresses;
-                          },
-                          onSelected: (String selection) {
-                            setState(() {
-                              address = selection;
-                            });
-                          },
-                        ),
+                              return addresses;
+                            },
+                            onSelected: (String selection) {
+                              setState(() {
+                                address = selection;
+                              });
+                            },
+                          ),
+                          
+                        ],
                       ),
                       SizedBox(height: 10),
                       CustomTextField(

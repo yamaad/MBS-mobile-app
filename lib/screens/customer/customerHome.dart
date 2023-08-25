@@ -35,6 +35,9 @@ class _CustomerHomeState extends State<CustomerHome> {
     super.initState();
     _getCurrentLocation();
   }
+  void dispose() {
+    super.dispose();
+  }
 
   void _getCurrentLocation() async {
     Position position = await LocationServices.getCurrentLocation();
