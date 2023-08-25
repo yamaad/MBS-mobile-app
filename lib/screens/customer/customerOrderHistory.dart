@@ -46,6 +46,7 @@ void showOrdersHistory(BuildContext context, String currentUserUid) async {
                                     color: DashboardFunctions.orderStatusColor(
                                         order.status)),
                               ),
+                              trailing: Text(order.creationTime.toString()),
                               onTap: () {
                                 // Handle order tap event
                                 showDialog(

@@ -80,13 +80,13 @@ class OrderServices {
           .where('shopUid', isEqualTo: currentUserUid)
           .orderBy('creationTime', descending: true)
           .where('creationTime', isLessThan: ordersHistory.last.creationTime)
-          .limit(3)
+          .limit(5)
           .get();
     } else {
       data = await ordersCollection
           .where('shopUid', isEqualTo: currentUserUid)
           .orderBy('creationTime', descending: true)
-          .limit(3)
+          .limit(10)
           .get();
     }
     for (final doc in data.docs) {

@@ -28,6 +28,7 @@ class _DashboardState extends State<Dashboard> {
   final AuthSevrices _auth = AuthSevrices();
   final ShopServices _shopServices = ShopServices();
   final OrderServices _orderServices = OrderServices();
+  String shopName = "";
 
   StreamController<List<OrderInfo>> _ordersStreamController =
       StreamController<List<OrderInfo>>.broadcast();
@@ -70,7 +71,7 @@ class _DashboardState extends State<Dashboard> {
     });
   }
   void getAvaiableBrands() async {
-    addedBrands = await _auth.getAvaiableBrands(); //! utm account brands error
+    addedBrands = await _auth.getAvaiableBrands(); 
   }
   void requestLocationPermission() async {
     await _locationServices.requestLocationPermission();
@@ -79,6 +80,7 @@ class _DashboardState extends State<Dashboard> {
   void getshopStatus() async {
     ShopInfo shop = await _auth.getCurrentShopData();
     status = shop.status;
+    shopName = shop.shopName;
     if (status) {
       setState(() {
         switchStatus = "go offline";
@@ -207,10 +209,15 @@ class _DashboardState extends State<Dashboard> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
+                          shopName,
+                          style: TextStyle(
+                              fontSize: 24.0, fontWeight: FontWeight.w600),
+                        ),
+                        Text(
                           status ? "online" : "offline",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 24.0,
+                            fontSize: 16.0,
                             color: DashboardFunctions.shopStatusColor(status),
                           ),
                         ),

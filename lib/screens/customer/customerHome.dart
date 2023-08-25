@@ -208,7 +208,7 @@ class _CustomerHomeState extends State<CustomerHome> {
                               );
                             },
                             child: Container(
-                              width: 120.0,
+                              width: 200.0,
                               height: 60.0,
                               alignment: Alignment.center,
                               child: Text(
@@ -267,13 +267,14 @@ class _CustomerHomeState extends State<CustomerHome> {
                             );
                           },
                           child: Container(
-                            width: 120.0,
+                            width: 200.0,
                             height: 48.0,
                             alignment: Alignment.center,
                             child: Text(
-                              'Make Order',
+                              'Make Order To Any Store',
                               style: TextStyle(
-                                fontSize: 20.0,
+                                fontSize: 16.0,
+                                
                               ),
                             ),
                           ),

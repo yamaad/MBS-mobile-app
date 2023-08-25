@@ -28,11 +28,14 @@ class _ShowOrderStateState extends State<ShowOrderState> {
   }
 
   Future<void> getShopName() async {
+    if (widget.order.shopUid!.isNotEmpty) {
     ShopInfo shopInfo = await auth.getShopData(widget.order.shopUid!);
     setState(() {
-      shopName = shopInfo.shopName;
-      shopLocation = shopInfo.location;
+        shopName = shopInfo.shopName;
+
+        shopLocation = shopInfo.location;
     });
+    }
   }
 
   @override
