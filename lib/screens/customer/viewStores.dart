@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mbs_fyp/components/viewStoreCard.dart';
 import 'package:mbs_fyp/models/shopInfo.dart';
 import 'package:mbs_fyp/services/orderServcies.dart';
+import 'package:mbs_fyp/services/paymentServices.dart';
 
 import '../../models/customerUser.dart';
 import '../../services/authService.dart';
@@ -16,6 +17,7 @@ class ViewStore extends StatefulWidget {
 
 class _ViewStoreState extends State<ViewStore> {
   final AuthSevrices _auth = AuthSevrices();
+  final PaymentServices paymentServices = PaymentServices();
   final OrderServices _orderServices = OrderServices();
   @override
   Widget build(BuildContext context) {
@@ -86,13 +88,17 @@ class _ViewStoreState extends State<ViewStore> {
                             ],
                           ),
                           onTap: () async {
+                            final isPayed =
+                                await paymentServices.createPaymentInent();
+                            if (isPayed) {
                             CustomerUser biker =
                                 await _auth.getCurrentUserData();
                             await _orderServices.createOrder(
                                 biker,
                                 widget.shopInfo[index].uid,
                                 option,
-                                widget.shopInfo[index].phone);
+                                  widget.shopInfo[index].phone);
+                            }
                           },
                         );
                       }).toList(),
