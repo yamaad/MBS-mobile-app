@@ -12,7 +12,6 @@ class PaymentServices {
   Future<bool> createPaymentInent() async {
     try {
       Map<String, dynamic> body = {"amount": "20000", "currency": "MYR"};
-      print("***************");
       final response = await http.post(
           Uri.parse("https://api.stripe.com/v1/payment_intents"),
           body: body,
@@ -20,8 +19,6 @@ class PaymentServices {
             "Authorization": "Bearer ${apiKey}",
             "Content-type": "application/x-www-form-urlencoded"
           });
-      print(response.body);
-      print("***************");
       paymentIntent = json.decode(response.body);
     } catch (e) {
       throw Exception(e);
