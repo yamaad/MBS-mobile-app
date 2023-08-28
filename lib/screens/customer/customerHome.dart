@@ -6,8 +6,8 @@ import 'package:mbs_fyp/models/shopInfo.dart';
 import 'package:mbs_fyp/screens/customer/customerOrderHistory.dart';
 import 'package:mbs_fyp/screens/customer/viewStores.dart';
 import 'package:mbs_fyp/services/authService.dart';
+import 'package:mbs_fyp/services/paymentServices.dart';
 import 'package:provider/provider.dart';
-
 import '../../models/customerUser.dart';
 import '../../models/user.dart';
 import '../../services/locationServeices.dart';
@@ -23,6 +23,8 @@ class CustomerHome extends StatefulWidget {
 class _CustomerHomeState extends State<CustomerHome> {
   final AuthSevrices _auth = AuthSevrices();
   final OrderServices _orderServices = OrderServices();
+  final PaymentServices paymentServices = PaymentServices();
+
   TextEditingController phoneController = TextEditingController();
   TextEditingController motorcycleNumberController = TextEditingController();
   TextEditingController motorcycleTypeController = TextEditingController();
@@ -35,6 +37,7 @@ class _CustomerHomeState extends State<CustomerHome> {
     super.initState();
     _getCurrentLocation();
   }
+
   void dispose() {
     super.dispose();
   }
@@ -257,10 +260,14 @@ class _CustomerHomeState extends State<CustomerHome> {
                                     ],
                                   ),
                                   onTap: () async {
-                                    CustomerUser biker =
-                                        await _auth.getCurrentUserData();
-                                    await _orderServices.createOrder(
-                                        biker, null, option, null);
+                                    final isPayed = await paymentServices
+                                        .createPaymentInent();
+                                    if (isPayed) {
+                                      CustomerUser biker =
+                                          await _auth.getCurrentUserData();
+                                      await _orderServices.createOrder(
+                                          biker, null, option, null);
+                                    }
                                   },
                                 );
                               }).toList(),
@@ -274,7 +281,6 @@ class _CustomerHomeState extends State<CustomerHome> {
                               'Make Order To Any Store',
                               style: TextStyle(
                                 fontSize: 16.0,
-                                
                               ),
                             ),
                           ),
