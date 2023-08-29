@@ -42,37 +42,4 @@ class PaymentServices {
       return false;
     }
   }
-
-  // Future<bool> collectCardDetails() async {
-  //   try {
-  //     // Show the CardField UI for collecting payment details
-  //     PaymentMethod paymentMethod =
-  //         await StripePayment.paymentRequestWithCardForm(
-  //             CardFormPaymentRequest());
-
-  //     // Process the paymentMethod and create a PaymentIntent on your server
-
-  //     // If payment is successful, return true
-  //     return true;
-  //   } catch (error) {
-  //     // Handle errors during payment process
-  //     print('Payment Error: $error');
-  //     return false;
-  //   }
-  // }
-
-  // Future<void> createPaymentMethod() async {
-  //   StripePayment.setStripeAccount("");
-  //   final amount = 50;
-  //   print('amount in pence/cent which will be charged = $amount');
-  //   //step 1: add card
-  //   PaymentMethod paymentMethod = PaymentMethod();
-  //   paymentMethod = await StripePayment.paymentRequestWithCardForm(
-  //     CardFormPaymentRequest(),
-  //   ).then((PaymentMethod paymentMethod) {
-  //     return paymentMethod;
-  //   }).catchError((e) {
-  //     print('Errore Card: ${e.toString()}');
-  //   });
-  // }
 }
