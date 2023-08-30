@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mbs_fyp/components/loading.dart';
+import 'package:mbs_fyp/components/reportDialog.dart';
 import 'package:mbs_fyp/models/shopInfo.dart';
 import 'package:mbs_fyp/screens/customer/customerOrderHistory.dart';
 import 'package:mbs_fyp/screens/customer/viewStores.dart';
@@ -24,6 +25,7 @@ class _CustomerHomeState extends State<CustomerHome> {
   final AuthSevrices _auth = AuthSevrices();
   final OrderServices _orderServices = OrderServices();
   final PaymentServices paymentServices = PaymentServices();
+  
 
   TextEditingController phoneController = TextEditingController();
   TextEditingController motorcycleNumberController = TextEditingController();
@@ -44,9 +46,11 @@ class _CustomerHomeState extends State<CustomerHome> {
 
   void _getCurrentLocation() async {
     Position position = await LocationServices.getCurrentLocation();
-    setState(() {
+    if (mounted) {
+      setState(() {
       _currentPosition = position;
-    });
+      });
+    }
 
     if (_mapController != null) {
       _mapController!.animateCamera(
@@ -85,19 +89,23 @@ class _CustomerHomeState extends State<CustomerHome> {
               ),
               PopupMenuItem(
                 value: 2,
+                child: Text("report an issue"),
+              ),
+              PopupMenuItem(
+                value: 3,
                 child: Text("Logout"),
               ),
             ],
             onSelected: (value) async {
-              if (value == 1) {
-                // Handle Edit Info
+              if (value == 2) {
+                showReportDialog(context, user!.uid, null, null);
+              } else if (value == 1) {
                 phoneController.text =
                     (await _auth.getBikerInfo("phone")).toString();
                 motorcycleNumberController.text =
                     await _auth.getBikerInfo("motorcycleNumber");
                 motorcycleTypeController.text =
                     await _auth.getBikerInfo("motorcycleType");
-
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
@@ -138,7 +146,7 @@ class _CustomerHomeState extends State<CustomerHome> {
                     );
                   },
                 );
-              } else if (value == 2) {
+              } else if (value == 3) {
                 await _auth.signOut();
               }
             },

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:mbs_fyp/components/reportDialog.dart';
 import 'package:mbs_fyp/models/orderInfo.dart';
 import 'package:mbs_fyp/models/shopInfo.dart';
 import 'package:mbs_fyp/screens/client/dashBoardFunctions.dart';
@@ -29,12 +30,14 @@ class _ShowOrderStateState extends State<ShowOrderState> {
 
   Future<void> getShopName() async {
     if (widget.order.shopUid!.isNotEmpty) {
-    ShopInfo shopInfo = await auth.getShopData(widget.order.shopUid!);
-    setState(() {
+      ShopInfo shopInfo = await auth.getShopData(widget.order.shopUid!);
+      if (mounted) {
+        setState(() {
         shopName = shopInfo.shopName;
 
         shopLocation = shopInfo.location;
-    });
+        });
+      }
     }
   }
 
@@ -87,21 +90,38 @@ class _ShowOrderStateState extends State<ShowOrderState> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ElevatedButton(
-                      onPressed: () async {
-                        // Accept button action
-                        // Implement your logic here
-                        await orderServices.updateOrderStatus(
-                            widget.order,
-                            widget.order.shopUid,
-                            widget.order.shopPhone,
-                            'completed');
-                      },
-                      child: Text('Mark As Completed'),
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.green),
-                      ),
+                    Column(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            showReportDialog(context, widget.currentUserUid,
+                                widget.order.uid, widget.order.shopUid);
+                          },
+                          child: Text('report an issue'),
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.grey.shade500),
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            // Accept button action
+                            // Implement your logic here
+                            await orderServices.updateOrderStatus(
+                                widget.order,
+                                widget.order.shopUid,
+                                widget.order.shopPhone,
+                                'completed');
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          },
+                          child: Text('Mark As Completed'),
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all<Color>(Colors.green),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -158,6 +178,30 @@ class _ShowOrderStateState extends State<ShowOrderState> {
                     Text(widget.order.creationTime.toString()),
                   ],
                 ),
+                if (widget.order.status == "pending")
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () async {
+                          // Todo cancel pending Orders
+                          // Implement your logic here
+                          await orderServices.updateOrderStatus(
+                              widget.order,
+                              widget.order.shopUid,
+                              widget.order.shopPhone,
+                              'canceled');
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        },
+                        child: Text('Cancel'),
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.red.shade500),
+                        ),
+                      ),
+                    ],
+                  )
               ],
             ),
           );

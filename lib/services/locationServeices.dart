@@ -112,8 +112,6 @@ class LocationServices {
 
     if (response.statusCode == 200) {
       // Parse the response JSON
-      print("******* response.body: *******");
-      print(response.body);
       final data = jsonDecode(response.body);
 
       // Extract the distance value from the response

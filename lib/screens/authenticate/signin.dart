@@ -78,7 +78,8 @@ class _SigninState extends State<Signin> {
                               });
                         String result = await _auth.signIn(email, password);
                               setState(() {
-                                //! error
+                                //! Exception has occurred.
+
                                 loading = false;
                           ServerError = result;
                         });
