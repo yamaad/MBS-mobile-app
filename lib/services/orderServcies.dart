@@ -71,6 +71,12 @@ class OrderServices {
       'shopPhone': shopPhone != null ? shopPhone : 0,
     });
   }
+  Future<void> rateOrder(
+      String orderUid, num pricingRating, num serviceRating) async {
+    await ordersCollection.doc(orderUid).update(
+        {"pricingRating": pricingRating, "serviceRating": serviceRating});
+    // Todo update ratings on shop's data
+  }
 
   // Return the latest 5 Orders in the history
   Future<List<OrderInfo>> getOrdersHistory(String currentUserUid) async {

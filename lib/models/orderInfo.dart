@@ -14,7 +14,8 @@ class OrderInfo {
   String motorcycleType;
   String serviceRequired;
   LatLng location;
-  num? rating;
+  num? pricingRating;
+  num? serviceRating;
   DateTime creationTime;
 
   OrderInfo({
@@ -30,7 +31,8 @@ class OrderInfo {
     required this.motorcycleType,
     required this.serviceRequired,
     required this.location,
-    this.rating,
+    this.pricingRating,
+    this.serviceRating,
     required this.creationTime,
   });
 
@@ -52,7 +54,12 @@ class OrderInfo {
       motorcycleType: map['motorcycleType'],
       serviceRequired: map['serviceRequired'],
       location: LatLng(latitude, longitude),
-      rating: map.containsKey('rating') ? map['rating'] as num? : null,
+      pricingRating: map.containsKey('pricingRating')
+          ? map['pricingRating'] as num?
+          : null,
+      serviceRating: map.containsKey('serviceRating')
+          ? map['serviceRating'] as num?
+          : null,
       creationTime: timestamp.toDate(),
     );
   }

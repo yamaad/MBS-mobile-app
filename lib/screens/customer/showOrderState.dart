@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mbs_fyp/components/reportDialog.dart';
 import 'package:mbs_fyp/models/orderInfo.dart';
@@ -22,6 +23,9 @@ class _ShowOrderStateState extends State<ShowOrderState> {
   final auth = AuthSevrices();
   String shopName = '-';
   LatLng shopLocation = LatLng(0, 0);
+  num pricingRate = 0;
+  num serviceRate = 0;
+  
 
   void initState() {
     super.initState();
@@ -152,16 +156,7 @@ class _ShowOrderStateState extends State<ShowOrderState> {
                     Text(shopName),
                   ],
                 ),
-                SizedBox(height: 9.0),
-                Row(
-                  children: [
-                    Text("rate: "),
-                    Spacer(),
-                    Text(widget.order.rating == null
-                        ? "-"
-                        : widget.order.rating.toString()),
-                  ],
-                ),
+               
                 SizedBox(height: 9.0),
                 Row(
                   children: [
@@ -176,6 +171,23 @@ class _ShowOrderStateState extends State<ShowOrderState> {
                     Text("Date: "),
                     Spacer(),
                     Text(widget.order.creationTime.toString()),
+                  ],
+                ),
+                SizedBox(height: 9.0),
+                Column(
+                  children: [
+                    Text("rate: "),
+                    Row(
+                      children: [
+                        if (widget.order.pricingRating != null)
+                          Text("pricing: " +
+                              widget.order.pricingRating.toString()),
+                        Spacer(),
+                        if (widget.order.serviceRating != null)
+                          Text("service: " +
+                              widget.order.serviceRating.toString()),
+                      ],
+                    ),
                   ],
                 ),
                 if (widget.order.status == "pending")
@@ -200,6 +212,77 @@ class _ShowOrderStateState extends State<ShowOrderState> {
                               Colors.red.shade500),
                         ),
                       ),
+                    ],
+                  ),
+                if (widget.order.status == "completed" &&
+                    widget.order.pricingRating == null)
+                  Column(
+                    children: [
+                      SizedBox(height: 10),
+                      Text("Rate the pricing:"),
+                      RatingBar.builder(
+                        initialRating: 0,
+                        minRating: 1,
+                        direction: Axis.horizontal,
+                        allowHalfRating: true,
+                        itemCount: 5,
+                        itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                        itemBuilder: (context, _) => Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                        ),
+                        onRatingUpdate: (rating) {
+                          if (mounted) {
+                            setState(() {
+                              pricingRate = rating;
+                            });
+                          }
+                        },
+                      ),
+                      SizedBox(height: 10),
+                      Text("Rate the the service provided:"),
+                      SizedBox(width: 10),
+                      RatingBar.builder(
+                        initialRating: 0,
+                        minRating: 1,
+                        direction: Axis.horizontal,
+                        allowHalfRating: true,
+                        itemCount: 5,
+                        itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                        itemBuilder: (context, _) => Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                        ),
+                        onRatingUpdate: (rating) {
+                          if (mounted) {
+                            setState(() {
+                              serviceRate = rating;
+                            });
+                          }
+                        },
+                      ),
+                      SizedBox(height: 10),
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            // Customize the button's appearance when disabled
+                            backgroundColor: (serviceRate == 0 ||
+                                    pricingRate == 0)
+                                ? Colors.grey
+                                : Colors
+                                    .green, // You can change the color to visually indicate it's disabled
+                          ),
+                          onPressed: (serviceRate == 0 || pricingRate == 0)
+                              ? null
+                              : () async {
+                                  await orderServices.rateOrder(
+                                      widget.order.uid,
+                                      pricingRate,
+                                      serviceRate);
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                },
+                          child: Text("submit rating")),
+                          
                     ],
                   )
               ],
