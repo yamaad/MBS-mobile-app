@@ -77,12 +77,13 @@ class _SigninState extends State<Signin> {
                                 loading = true;
                               });
                         String result = await _auth.signIn(email, password);
-                              setState(() {
-                                //! Exception has occurred.
+                              if (mounted) {
+                                setState(() {
 
                                 loading = false;
                           ServerError = result;
-                        });
+                                });
+                              }
                       }
                     },
                     child: Text('log in'),

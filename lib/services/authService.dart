@@ -150,7 +150,12 @@ class AuthSevrices {
       final docRef = db.collection("user").doc(user.uid);
       final doc = await docRef.get();
       if (doc.exists) {
-        return doc.get('userType');
+        if (doc.get('userType') == "client") {
+          if (!doc.get("isActive")) return "inActive";
+        } else
+          
+          return doc.get('userType');
+
       }
       return "User not found";
     }

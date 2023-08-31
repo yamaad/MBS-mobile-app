@@ -5,6 +5,7 @@ import 'package:mbs_fyp/screens/admin/adminInterface.dart';
 import 'package:mbs_fyp/screens/authenticate/authenticate.dart';
 import 'package:mbs_fyp/screens/client/dashbord.dart';
 import 'package:mbs_fyp/screens/customer/customerHome.dart';
+import 'package:mbs_fyp/screens/inActiveUser.dart';
 import 'package:mbs_fyp/screens/suspeneded.dart';
 import 'package:mbs_fyp/services/authService.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +30,9 @@ class Wrapper extends StatelessWidget {
             return Text('Error: ${snapshot.error}');
           } else {
             final userType = snapshot.data;
+            print("*******************************");
+            print(userType);
+            print("*******************************");
             if (userType == 'client') {
               return Dashboard(
                 currentUserUid: user.uid,
@@ -40,6 +44,9 @@ class Wrapper extends StatelessWidget {
               return SuspenededAccounts();
             } else if (userType == 'admin') {
               return AdminInterface();
+            } else if (userType == 'inActive') {
+              print("****************");
+              return InActiveUser();
             } else {
               return Authenticate();
             }
