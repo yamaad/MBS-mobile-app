@@ -45,7 +45,6 @@ class Wrapper extends StatelessWidget {
             } else if (userType == 'admin') {
               return AdminInterface();
             } else if (userType == 'inActive') {
-              print("****************");
               return InActiveUser();
             } else {
               return Authenticate();
