@@ -144,7 +144,7 @@ class AuthSevrices {
     await FirebaseAuth.instance.signOut();
   }
 
-  Future<String> getUserType() async {
+  Future<String> getCurrentUserType() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final docRef = db.collection("user").doc(user.uid);
@@ -209,10 +209,25 @@ Future<CustomerUser> getCurrentUserData() async {
     throw Exception("No user logged in");
   }
 
+Future<String> getUserType(String uid) async {
+    final docRef = db.collection("user").doc(uid);
+    final doc = await docRef.get();
+    if (doc.exists) {
+      return doc.get('userType');
+    } else
+      return "User not found";
+  }
   Future<ShopInfo> getShopData(String uid) async {
     final docRef = db.collection("user").doc(uid);
     final doc = await docRef.get();
     final userData = ShopInfo.fromMap(doc.data());
+    return userData;
+  }
+  Future<CustomerUser> getBikerData(String uid) async {
+    final docRef = db.collection("user").doc(uid);
+    final doc = await docRef.get();
+    // Extract the user data from the document
+    final userData = CustomerUser.fromMap(doc.data());
     return userData;
   }
 

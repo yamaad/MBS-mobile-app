@@ -4,6 +4,7 @@ class ShopInfo {
   final String uid;
   final String shopName;
   final String address;
+  final String email;
   final LatLng location;
   final int phone;
   final List<String> services;
@@ -17,6 +18,7 @@ class ShopInfo {
     required this.uid,
     required this.shopName,
     required this.address,
+    required this.email,
     required this.location,
     required this.phone,
     required this.services,
@@ -40,6 +42,7 @@ class ShopInfo {
       uid: map['uid'],
       shopName: map['shopName'],
       address: map['address'],
+      email: map['email'],
       location: location,
       phone: map['phone'],
       services: (map['services'] as List<dynamic>?)?.cast<String>() ?? [],

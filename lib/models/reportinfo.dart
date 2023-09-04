@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ReportInfo {
+  String uid;
   String reporterUid;
   String? orderUid;
   String? reportedUid;
@@ -10,6 +11,7 @@ class ReportInfo {
   DateTime creationTime;
 
   ReportInfo({
+    required this.uid,
     required this.reporterUid,
     this.orderUid,
     this.reportedUid,
@@ -23,6 +25,7 @@ class ReportInfo {
     final Timestamp timestamp = map['creationTime'];
 
     return ReportInfo(
+      uid: map['uid'],
       reporterUid: map['reporterUid'],
       orderUid: map['orderUid'],
       reportedUid: map['reportedUid'],

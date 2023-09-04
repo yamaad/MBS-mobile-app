@@ -39,6 +39,7 @@ void showReportDialog(BuildContext context, final reporterUid, String? orderUid,
           TextButton(
             onPressed: () async {
               await _reportServices.createReport(ReportInfo(
+                  uid: "",
                   reporterUid: reporterUid,
                   reportedUid: reportedUid,
                   orderUid: orderUid,

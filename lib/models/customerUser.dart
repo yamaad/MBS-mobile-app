@@ -1,6 +1,7 @@
 class CustomerUser {
   String firstName;
   String lastName;
+  String email;
   String motorcycleNumber;
   String motorcycleType;
   int phone;
@@ -9,6 +10,7 @@ class CustomerUser {
   CustomerUser({
     required this.firstName,
     required this.lastName,
+    required this.email,
     required this.motorcycleNumber,
     required this.motorcycleType,
     required this.phone,
@@ -24,6 +26,7 @@ class CustomerUser {
       uid: map['uid'],
       firstName: map['firstName'],
       lastName: map['lastName'],
+      email: map['email'],
       motorcycleNumber: map['motorcycleNumber'],
       motorcycleType: map['motorcycleType'],
       phone: map['phone'],

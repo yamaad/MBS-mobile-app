@@ -196,7 +196,6 @@ class _ShowOrderStateState extends State<ShowOrderState> {
                     children: [
                       ElevatedButton(
                         onPressed: () async {
-                          // Todo cancel pending Orders
                           // Implement your logic here
                           await orderServices.updateOrderStatus(
                               widget.order,

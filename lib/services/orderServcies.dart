@@ -114,4 +114,10 @@ class OrderServices {
     }
     return ordersHistory;
   }
+
+  Future<OrderInfo> getSingleOrder(String uid) async {
+    final doc = await ordersCollection.doc(uid).get();
+    final order = OrderInfo.fromMap(doc.data() as Map<String, dynamic>);
+    return order;
+  }
 }

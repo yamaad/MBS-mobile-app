@@ -20,7 +20,7 @@ class Wrapper extends StatelessWidget {
     final user = Provider.of<MbsUser?>(context);
     if (user != null) {
       return FutureBuilder<String>(
-        future: services.getUserType(),
+        future: services.getCurrentUserType(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Show loading indicator while waiting for the result
@@ -30,9 +30,6 @@ class Wrapper extends StatelessWidget {
             return Text('Error: ${snapshot.error}');
           } else {
             final userType = snapshot.data;
-            print("*******************************");
-            print(userType);
-            print("*******************************");
             if (userType == 'client') {
               return Dashboard(
                 currentUserUid: user.uid,
