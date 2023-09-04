@@ -151,7 +151,11 @@ class AuthSevrices {
       final doc = await docRef.get();
       if (doc.exists) {
         if (doc.get('userType') == "client") {
-          if (!doc.get("isActive")) return "inActive";
+          if (!doc.get("isActive")) {
+            return "inActive";
+          }
+          return doc.get('userType');
+          
         } else
           
           return doc.get('userType');

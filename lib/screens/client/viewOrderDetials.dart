@@ -66,6 +66,22 @@ void viewOrderDetails(BuildContext context, OrderInfo order) {
                     Text(order.creationTime.toString()),
                   ],
                 ),
+                SizedBox(height: 20.0),
+                Row(
+                  children: [
+                    Text("service rate: "),
+                    Spacer(),
+                    Text(order.serviceRating.toString()),
+                  ],
+                ),
+                SizedBox(height: 20.0),
+                Row(
+                  children: [
+                    Text("price rate: "),
+                    Spacer(),
+                    Text(order.pricingRating.toString()),
+                  ],
+                ),
               ],
             ),
           ),

@@ -356,6 +356,7 @@ class _DashboardState extends State<Dashboard> {
                       OrderInfo order = orders[index];
                       return ListTile(
                         title: Text('Order ${order.orderNo}'),
+                        trailing: Text(order.creationTime.toString()),
                         subtitle: Text(
                           '${order.status}',
                           style: TextStyle(
