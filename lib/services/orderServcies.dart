@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mbs_fyp/models/customerUser.dart';
+import 'package:mbs_fyp/models/employeeModel.dart';
 import 'package:mbs_fyp/services/locationServeices.dart';
 import 'package:mbs_fyp/models/orderInfo.dart';
 
@@ -52,6 +53,7 @@ class OrderServices {
           "longitude": location.longitude,
         },
         'creationTime': DateTime.now(),
+        'assignedTo': {"name": "", "phone": "", "isActive": false}
       };
 
       await orderDocRef.set(orderData);
@@ -64,18 +66,35 @@ class OrderServices {
 
   //update order status
   Future<void> updateOrderStatus(
-      OrderInfo order, String? shopUid, num? shopPhone, String status) async {
+      OrderInfo order, String? shopUid,
+      num? shopPhone, String status, EmployeeUser? assignedEmployee) async {
     await ordersCollection.doc(order.uid).update({
       'status': shopUid != null ? status : "pending",
       'shopUid': shopUid != null ? shopUid : '',
       'shopPhone': shopPhone != null ? shopPhone : 0,
+      'assignedTo': {
+        "name": assignedEmployee != null
+            ? assignedEmployee.name
+            : order.assignedTo != null
+                ? order.assignedTo?.name
+                : "",
+        "phone": assignedEmployee != null
+            ? assignedEmployee.phone
+            : order.assignedTo != null
+                ? order.assignedTo?.phone
+                : "",
+        "isActive": assignedEmployee != null
+            ? assignedEmployee.isActive
+            : order.assignedTo != null
+                ? order.assignedTo?.isActive
+                : false,
+      },
     });
   }
   Future<void> rateOrder(
       String orderUid, num pricingRating, num serviceRating) async {
     await ordersCollection.doc(orderUid).update(
         {"pricingRating": pricingRating, "serviceRating": serviceRating});
-    // Todo update ratings on shop's data
   }
 
   // Return the latest 5 Orders in the history

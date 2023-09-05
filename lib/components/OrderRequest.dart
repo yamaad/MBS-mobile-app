@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:mbs_fyp/models/employeeModel.dart';
 import 'package:mbs_fyp/models/orderInfo.dart';
 import 'package:mbs_fyp/models/shopInfo.dart';
 import 'package:mbs_fyp/services/orderServcies.dart';
 
-void showOrdersDialog(BuildContext context, OrderInfo order, ShopInfo shop) {
+void showOrdersDialog(BuildContext context, OrderInfo order, ShopInfo shop,
+    List<EmployeeUser> employees) {
   OrderServices orderServices = OrderServices();
 
   showDialog(
@@ -84,9 +86,38 @@ void showOrdersDialog(BuildContext context, OrderInfo order, ShopInfo shop) {
                       onPressed: () async {
                         // Accept button action
                         // Implement your logic here
-                        await orderServices.updateOrderStatus(
-                            order, shop.uid, shop.phone, 'ongoing');
-                        Navigator.pop(context);
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                content: SingleChildScrollView(
+                                    child: Wrap(
+                                  children:
+                                      List.generate(employees.length, (index) {
+                                    return Column(
+                                      children: [
+                                        ListTile(
+                                          title: Text(employees[index].name),
+                                          onTap: () async {
+                                            await orderServices
+                                                .updateOrderStatus(
+                                                    order,
+                                                    shop.uid,
+                                                    shop.phone,
+                                                    'ongoing',
+                                                    employees[index]);
+                                            Navigator.pop(context);
+                                            Navigator.pop(context);
+                                          },
+                                        )
+                                      ],
+                                    );
+                                  }),
+                                )),
+                              );
+                            });
+                        
+                        
                       },
                       child: Text('Accept'),
                       style: ButtonStyle(
@@ -99,10 +130,10 @@ void showOrdersDialog(BuildContext context, OrderInfo order, ShopInfo shop) {
                       onPressed: () async {
                         if (order.shopUid != '') {
                           await orderServices.updateOrderStatus(
-                              order, shop.uid, shop.phone, 'declined');
+                              order, shop.uid, shop.phone, 'declined', null);
                         } else {
                           await orderServices.updateOrderStatus(
-                              order, null, null, 'declined');
+                              order, null, null, 'declined', null);
                         }
                         Navigator.pop(context);
                       },

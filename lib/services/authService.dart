@@ -1,12 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mbs_fyp/models/customerUser.dart';
+import 'package:mbs_fyp/models/employeeModel.dart';
 import '../models/shopInfo.dart';
 import '../models/user.dart';
 import 'locationServeices.dart';
 
 class AuthSevrices {
   FirebaseFirestore db = FirebaseFirestore.instance;
+final List<EmployeeUser> employees = [];
+  QueryDocumentSnapshot? lastDocument;
 
   // create user obj based on firebase user
   MbsUser? _userFromFirebaseUser(User? user) {
@@ -128,6 +131,105 @@ class AuthSevrices {
     }
   }
 
+//
+  Future<String> createEmployee(String name, String phone) async {
+    if (phone.startsWith("0")) {
+      phone = "+6" + phone;
+    } else if (phone.startsWith("6")) {
+      phone = "+" + phone;
+    }
+
+    final user = FirebaseAuth.instance.currentUser;
+    final regiseredUser = await db
+        .collection("employees")
+        .doc(user!.uid)
+        .collection("employee")
+        .doc(phone)
+        .get();
+    if (regiseredUser.exists) {
+      final activeUser = await db
+          .collection("employees")
+          .doc(user.uid)
+          .collection("employee")
+          .where("phone", isEqualTo: phone)
+          .where("isActive", isEqualTo: false)
+          .get();
+      if (activeUser.docs.isNotEmpty) {
+        await db
+            .collection("employees")
+            .doc(user.uid)
+            .collection("employee")
+            .doc(phone)
+            .update({"isActive": true});
+        employees.clear();
+        await this.getEmployees();
+        return "employee user re-activated";
+      } else {
+        return "employee exsits already";
+      }
+    } else {
+      try {
+        await db
+            .collection("employees")
+            .doc(user.uid)
+            .collection("employee")
+            .doc(phone)
+            .set({"name": name, "phone": phone, "isActive": true});
+        employees.clear();
+        await this.getEmployees();
+        return "employee user created";
+      } catch (e) {
+        print(e);
+        return "invalid input";
+      }
+    }
+  }
+
+  Future<List<EmployeeUser>> getEmployees() async {
+    QuerySnapshot data;
+    final user = FirebaseAuth.instance.currentUser;
+    if (employees.isNotEmpty) {
+      data = await db
+          .collection("employees")
+          .doc(user!.uid)
+          .collection("employee")
+          .where('isActive', isEqualTo: true)
+          .orderBy('name', descending: false)
+          .startAfter([lastDocument!])
+          .limit(5)
+          .get();
+    } else {
+      data = await db
+          .collection("employees")
+          .doc(user!.uid)
+          .collection("employee")
+          .where('isActive', isEqualTo: true)
+          .orderBy('name', descending: false)
+          .limit(10)
+          .get();
+    }
+    if (data.docs.isNotEmpty) {
+      lastDocument = data.docs[data.docs.length - 1];
+      for (final doc in data.docs) {
+        employees.add(EmployeeUser.fromMap(doc.data() as Map<String, dynamic>));
+      }
+    }
+    return employees;
+  }
+
+  Future deActiveEmployee(String phone) async {
+    final user = FirebaseAuth.instance.currentUser;
+    await db
+        .collection("employees")
+        .doc(user!.uid)
+        .collection('employee')
+        .doc(phone)
+        .update({"isActive": false});
+    final employeesIndex =
+        employees.indexWhere((element) => element.phone == phone);
+
+    employees.removeAt(employeesIndex);
+  }
   // sign in
   Future signIn(final emailAddress, final password) async {
     try {

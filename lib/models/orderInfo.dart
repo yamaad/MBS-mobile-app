@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:mbs_fyp/models/employeeModel.dart';
 
 class OrderInfo {
   String uid;
@@ -17,6 +18,7 @@ class OrderInfo {
   num? pricingRating;
   num? serviceRating;
   DateTime creationTime;
+  EmployeeUser assignedTo;
 
   OrderInfo({
     required this.uid,
@@ -34,12 +36,16 @@ class OrderInfo {
     this.pricingRating,
     this.serviceRating,
     required this.creationTime,
+    required this.assignedTo,
   });
 
   factory OrderInfo.fromMap(Map<String, dynamic> map) {
     final latitude = map['location']['latitude'];
     final longitude = map['location']['longitude'];
     final Timestamp timestamp = map['creationTime'];
+    final name = map["assignedTo"]["name"];
+    final phone = map["assignedTo"]["phone"];
+    final isActive = map["assignedTo"]["isActive"];
 
     return OrderInfo(
       uid: map['uid'],
@@ -61,6 +67,7 @@ class OrderInfo {
           ? map['serviceRating'] as num?
           : null,
       creationTime: timestamp.toDate(),
+        assignedTo: EmployeeUser(name: name, phone: phone, isActive: isActive)
     );
   }
 }

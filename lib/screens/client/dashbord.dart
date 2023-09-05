@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:mbs_fyp/components/reportDialog.dart';
+import 'package:mbs_fyp/models/employeeModel.dart';
 import 'package:mbs_fyp/models/shopInfo.dart';
 import 'package:mbs_fyp/models/user.dart';
 import 'package:mbs_fyp/screens/client/viewOrderDetials.dart';
 import 'package:mbs_fyp/services/authService.dart';
 import 'package:mbs_fyp/services/shopServices.dart';
 import 'package:provider/provider.dart';
+import 'package:toast/toast.dart';
 import '../../models/orderInfo.dart';
 import '../../services/locationServeices.dart';
 import '../../services/orderServcies.dart';
@@ -24,11 +27,16 @@ class _DashboardState extends State<Dashboard> {
   TextEditingController brandController = TextEditingController();
 
   List<dynamic> addedBrands = [];
+  List<EmployeeUser> employees = [];
 
   final AuthSevrices _auth = AuthSevrices();
   final ShopServices _shopServices = ShopServices();
   final OrderServices _orderServices = OrderServices();
   String shopName = "";
+
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController fullNameController = TextEditingController();
+  TextEditingController otpController = TextEditingController();
 
   StreamController<List<OrderInfo>> _ordersStreamController =
       StreamController<List<OrderInfo>>.broadcast();
@@ -56,6 +64,7 @@ class _DashboardState extends State<Dashboard> {
     requestLocationPermission();
     super.initState();
     getAvaiableBrands();
+    getEmployees();
     getshopStatus();
     fetchOrdersStream(widget.currentUserUid);
     fectchOrdersHistory(widget.currentUserUid);
@@ -70,9 +79,16 @@ class _DashboardState extends State<Dashboard> {
       }
     });
   }
-  void getAvaiableBrands() async {
-    addedBrands = await _auth.getAvaiableBrands(); 
+
+  Future getEmployees() async {
+    employees = await _auth.getEmployees();
+    if (mounted) setState(() {});
   }
+
+  void getAvaiableBrands() async {
+    addedBrands = await _auth.getAvaiableBrands();
+  }
+
   void requestLocationPermission() async {
     await _locationServices.requestLocationPermission();
   }
@@ -115,7 +131,7 @@ class _DashboardState extends State<Dashboard> {
         if (orders.isNotEmpty) {
           if (orders.last.shopUid == currentUserUid ||
               orders.last.shopUid == '')
-            showOrdersDialog(context, orders.last, shop);
+            showOrdersDialog(context, orders.last, shop, employees);
         }
       });
     }
@@ -168,6 +184,8 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
+
     final user = Provider.of<MbsUser?>(context);
     return Scaffold(
       backgroundColor: Colors.brown[50],
@@ -177,205 +195,326 @@ class _DashboardState extends State<Dashboard> {
         title: Text("Dashboard"),
         centerTitle: true,
         actions: <Widget>[
-          TextButton.icon(
-            onPressed: () async {
-              await _auth.signOut();
+          PopupMenuButton<int>(
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 1,
+                child: Text("report an issue"),
+              ),
+              PopupMenuItem(
+                value: 2,
+                child: Text("Logout"),
+              ),
+            ],
+            onSelected: (value) async {
+              if (value == 1) {
+                showReportDialog(context, user!.uid, null, null);
+              } else if (value == 2) {
+                await _auth.signOut();
+              }
             },
             icon: Icon(Icons.person),
-            label: Text("logout"),
-            style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-            ),
+            offset: Offset(0, 50), // Adjust the offset if needed
           ),
         ],
       ),
       body: Container(
-        margin: EdgeInsets.fromLTRB(15.0, 75.0, 15.0, 0.0),
-        decoration: BoxDecoration(
-          color: Colors.brown[100],
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10.0),
-            topRight: Radius.circular(10.0),
-          ),
-        ),
-        child: Column(children: [
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 15.0),
-                  child: Container(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          shopName,
-                          style: TextStyle(
-                              fontSize: 24.0, fontWeight: FontWeight.w600),
-                        ),
-                        Text(
-                          status ? "online" : "offline",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            color: DashboardFunctions.shopStatusColor(status),
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            toggleSwitch(user!.uid);
-                          },
-                          child: Text(
-                            switchStatus,
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              color: Colors.black87,
+        child: Column(
+          children: [
+            SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+                onPressed: () async {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          actions: [
+                            TextButton(
+                              onPressed: () async {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: Text("New employee"),
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            TextField(
+                                              controller: fullNameController,
+                                              decoration: InputDecoration(
+                                                  labelText: 'Full Name'),
+                                            ),
+                                            TextField(
+                                              controller: phoneController,
+                                              keyboardType: TextInputType.phone,
+                                              decoration: InputDecoration(
+                                                  labelText: 'Phone'),
+                                            ),
+                                          ],
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                              onPressed: () async {
+                                                final message =
+                                                    await _auth.createEmployee(
+                                                        fullNameController.text,
+                                                        phoneController.text
+                                                            .trim());
+
+                                                Toast.show(
+                                                  message,
+                                                  gravity: Toast.top,
+                                                  duration: 25,
+                                                );
+
+                                                Navigator.pop(context);
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text("add"))
+                                        ],
+                                      );
+                                    });
+                              },
+                              child: Text("add new employee"),
                             ),
-                          ),
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                                Colors.grey
-                                    .shade300), // Set the button color here
-                          ),
-                        ),
-                      ],
-                    ),
+                          ],
+                          title: Text("Employees"),
+                          content: employees.isEmpty
+                              ? Text("you have no active employees")
+                              : SingleChildScrollView(
+                                  child: Wrap(
+                                    children: List.generate(employees.length,
+                                        (index) {
+                                      return Column(
+                                        children: [
+                                          ListTile(
+                                            title: Text(employees[index].name),
+                                            subtitle:
+                                                Text(employees[index].phone),
+                                            trailing: IconButton(
+                                              icon: Icon(
+                                                Icons.delete,
+                                                color: Colors.red[900],
+                                              ),
+                                              onPressed: () async {
+                                                await _auth.deActiveEmployee(
+                                                    employees[index].phone);
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                          )
+                                        ],
+                                      );
+                                    }),
+                                  ),
+                                ),
+                        );
+                      });
+                },
+                child: Text("Employees")),
+            SizedBox(
+              height: 20,
+            ),
+            Expanded(
+              child: Container(
+                margin: EdgeInsets.fromLTRB(15.0, 0, 15.0, 0.0),
+                decoration: BoxDecoration(
+                  color: Colors.brown[100],
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10.0),
+                    topRight: Radius.circular(10.0),
                   ),
                 ),
-              ),
-            ],
-          ),
-          // Add Brand Button
-          ElevatedButton(
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(
-                  Colors.brown), // Set the button color here
-            ),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text("add spare-parts available brands"),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextField(
-                          controller: brandController,
-                          decoration: InputDecoration(labelText: 'brand'),
-                        ),
-                      ],
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () async {
-                          setState(() {
-                            addedBrands.add(brandController.text);
-                          });
-                          await _auth.addBrand(addedBrands);
-                          brandController.text = '';
-                          Navigator.pop(context);
-                        },
-                        child: Text("add"),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            child: Text("Add Brand"),
-          ),
-
-          // List of Added Brands
-          Wrap(
-            children: List.generate(addedBrands.length, (index) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                child: Column(children: [
                   Row(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        addedBrands[index].toString(),
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.blueGrey.shade800,
+                      Expanded(
+                        child: Container(
+                          padding: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 15.0),
+                          child: Container(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  shopName,
+                                  style: TextStyle(
+                                      fontSize: 24.0,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  status ? "online" : "offline",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    color: DashboardFunctions.shopStatusColor(
+                                        status),
+                                  ),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    toggleSwitch(user!.uid);
+                                  },
+                                  child: Text(
+                                    switchStatus,
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(Colors
+                                            .grey
+                                            .shade300), // Set the button color here
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ), // Display brand name
-                      IconButton(
-                        icon: Icon(
-                          Icons.delete,
-                          color: Colors.red[900],
-                        ),
-                        onPressed: () async {
-                          // Remove the brand from the list when delete button is pressed
-                          setState(() {
-                            addedBrands.remove(addedBrands[index]);
-                          });
-                          await _auth.addBrand(addedBrands);
-                        },
                       ),
                     ],
-                  )
-                ],
-              );
-            }),
-          ),
-          Wrap(
-            children: List.generate(servicesList.length, (index) {
-              bool availability = servicesList[index]['availability'] ?? false;
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Checkbox(
-                    value: availability,
-                    onChanged: (bool? value) async {
-                      setState(() {
-                        servicesList[index]['availability'] = value;
-                      });
-                      await _shopServices.updateClientServices(
-                          user!.uid, updateSrvicesList());
-                    },
                   ),
-                  Text(servicesList[index]['services']),
-                ],
-              );
-            }),
-          ),
-          Text(
-            "Orders History",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Expanded(
-            child: CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (BuildContext context, int index) {
-                      OrderInfo order = orders[index];
-                      return ListTile(
-                        title: Text('Order ${order.orderNo}'),
-                        trailing: Text(order.creationTime.toString()),
-                        subtitle: Text(
-                          '${order.status}',
-                          style: TextStyle(
-                              color: DashboardFunctions.orderStatusColor(
-                                  order.status)),
-                        ),
-                        onTap: () {
-                          // Handle order tap event
-                          viewOrderDetails(context, order);
+                  // Add Brand Button
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                          Colors.brown), // Set the button color here
+                    ),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text("add spare-parts available brands"),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextField(
+                                  controller: brandController,
+                                  decoration:
+                                      InputDecoration(labelText: 'brand'),
+                                ),
+                              ],
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () async {
+                                  setState(() {
+                                    addedBrands.add(brandController.text);
+                                  });
+                                  await _auth.addBrand(addedBrands);
+                                  brandController.text = '';
+                                  Navigator.pop(context);
+                                },
+                                child: Text("add"),
+                              ),
+                            ],
+                          );
                         },
                       );
                     },
-                    childCount: orders.length,
+                    child: Text("Add Brand"),
                   ),
-                ),
-              ],
+
+                  // List of Added Brands
+                  Wrap(
+                    children: List.generate(addedBrands.length, (index) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                addedBrands[index].toString(),
+                                style: TextStyle(
+                                  fontSize: 16.0,
+                                  color: Colors.blueGrey.shade800,
+                                ),
+                              ), // Display brand name
+                              IconButton(
+                                icon: Icon(
+                                  Icons.delete,
+                                  color: Colors.red[900],
+                                ),
+                                onPressed: () async {
+                                  // Remove the brand from the list when delete button is pressed
+                                  setState(() {
+                                    addedBrands.remove(addedBrands[index]);
+                                  });
+                                  await _auth.addBrand(addedBrands);
+                                },
+                              ),
+                            ],
+                          )
+                        ],
+                      );
+                    }),
+                  ),
+                  Wrap(
+                    children: List.generate(servicesList.length, (index) {
+                      bool availability =
+                          servicesList[index]['availability'] ?? false;
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Checkbox(
+                            value: availability,
+                            onChanged: (bool? value) async {
+                              setState(() {
+                                servicesList[index]['availability'] = value;
+                              });
+                              await _shopServices.updateClientServices(
+                                  user!.uid, updateSrvicesList());
+                            },
+                          ),
+                          Text(servicesList[index]['services']),
+                        ],
+                      );
+                    }),
+                  ),
+                  Text(
+                    "Orders History",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Expanded(
+                    child: CustomScrollView(
+                      controller: _scrollController,
+                      slivers: [
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (BuildContext context, int index) {
+                              OrderInfo order = orders[index];
+                              return ListTile(
+                                title: Text('Order ${order.orderNo}'),
+                                trailing: Text(order.creationTime.toString()),
+                                subtitle: Text(
+                                  '${order.status}',
+                                  style: TextStyle(
+                                      color:
+                                          DashboardFunctions.orderStatusColor(
+                                              order.status)),
+                                ),
+                                onTap: () {
+                                  // Handle order tap event
+                                  viewOrderDetails(context, order);
+                                },
+                              );
+                            },
+                            childCount: orders.length,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ]),
+              ),
             ),
-          )
-        ]),
+          ],
+        ),
       ),
     );
   }

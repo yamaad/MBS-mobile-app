@@ -50,6 +50,10 @@ dependencies:
   location: ^5.0.3
   http: ^0.13.6
   flutter_rating_bar: ^4.0.1
+  fluttertoast: ^8.2.2
+  toast: ^0.3.0
+
+
   
 
 dev_dependencies:

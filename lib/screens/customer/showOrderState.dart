@@ -115,7 +115,8 @@ class _ShowOrderStateState extends State<ShowOrderState> {
                                 widget.order,
                                 widget.order.shopUid,
                                 widget.order.shopPhone,
-                                'completed');
+                                'completed',
+                                widget.order.assignedTo);
                             Navigator.pop(context);
                             Navigator.pop(context);
                           },
@@ -201,7 +202,8 @@ class _ShowOrderStateState extends State<ShowOrderState> {
                               widget.order,
                               widget.order.shopUid,
                               widget.order.shopPhone,
-                              'canceled');
+                              'canceled',
+                              widget.order.assignedTo);
                           Navigator.pop(context);
                           Navigator.pop(context);
                         },

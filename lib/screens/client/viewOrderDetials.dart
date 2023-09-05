@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mbs_fyp/components/reportDialog.dart';
 import 'package:mbs_fyp/models/orderInfo.dart';
 import 'package:mbs_fyp/screens/client/dashBoardFunctions.dart';
 
@@ -69,6 +70,14 @@ void viewOrderDetails(BuildContext context, OrderInfo order) {
                 SizedBox(height: 20.0),
                 Row(
                   children: [
+                    Text("assiged to: "),
+                    Spacer(),
+                    Text(order.assignedTo.name),
+                  ],
+                ),
+                SizedBox(height: 20.0),
+                Row(
+                  children: [
                     Text("service rate: "),
                     Spacer(),
                     Text(order.serviceRating.toString()),
@@ -81,6 +90,18 @@ void viewOrderDetails(BuildContext context, OrderInfo order) {
                     Spacer(),
                     Text(order.pricingRating.toString()),
                   ],
+                ),
+                SizedBox(height: 20.0),
+                ElevatedButton(
+                  onPressed: () async {
+                    showReportDialog(
+                        context, order.shopUid, order.uid, order.bikerUid);
+                  },
+                  child: Text('report an issue'),
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.grey.shade500),
+                  ),
                 ),
               ],
             ),
