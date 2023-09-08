@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
 import 'package:mbs_fyp/models/customerUser.dart';
 import 'package:mbs_fyp/models/employeeModel.dart';
 import '../models/shopInfo.dart';
@@ -8,8 +9,9 @@ import 'locationServeices.dart';
 
 class AuthSevrices {
   FirebaseFirestore db = FirebaseFirestore.instance;
-final List<EmployeeUser> employees = [];
+  final List<EmployeeUser> employees = [];
   QueryDocumentSnapshot? lastDocument;
+  var verificationId = ''.obs;
 
   // create user obj based on firebase user
   MbsUser? _userFromFirebaseUser(User? user) {
@@ -115,9 +117,8 @@ final List<EmployeeUser> employees = [];
           "motorcycleNumber": motorcycleNumber,
           "userType": "customer",
           "isActive": true,
-          
         });
-        
+
         return '';
       } on FirebaseAuthException catch (e) {
         if (e.code == 'email-already-in-use') {
@@ -227,9 +228,10 @@ final List<EmployeeUser> employees = [];
         .update({"isActive": false});
     final employeesIndex =
         employees.indexWhere((element) => element.phone == phone);
-
+   
     employees.removeAt(employeesIndex);
   }
+
   // sign in
   Future signIn(final emailAddress, final password) async {
     try {
@@ -257,13 +259,10 @@ final List<EmployeeUser> employees = [];
             return "inActive";
           }
           return doc.get('userType');
-          
         } else
-          
           return doc.get('userType');
-
       }
-      return "User not found";
+      return "employee";
     }
     return "No user logged in";
   }
@@ -285,7 +284,8 @@ final List<EmployeeUser> employees = [];
     userList = await LocationServices.sortShopList(userList);
     return userList;
   }
-Future<CustomerUser> getCurrentUserData() async {
+
+  Future<CustomerUser> getCurrentUserData() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final docRef = db.collection("user").doc(user.uid);
@@ -315,7 +315,7 @@ Future<CustomerUser> getCurrentUserData() async {
     throw Exception("No user logged in");
   }
 
-Future<String> getUserType(String uid) async {
+  Future<String> getUserType(String uid) async {
     final docRef = db.collection("user").doc(uid);
     final doc = await docRef.get();
     if (doc.exists) {
@@ -323,12 +323,14 @@ Future<String> getUserType(String uid) async {
     } else
       return "User not found";
   }
+
   Future<ShopInfo> getShopData(String uid) async {
     final docRef = db.collection("user").doc(uid);
     final doc = await docRef.get();
     final userData = ShopInfo.fromMap(doc.data());
     return userData;
   }
+
   Future<CustomerUser> getBikerData(String uid) async {
     final docRef = db.collection("user").doc(uid);
     final doc = await docRef.get();
@@ -337,7 +339,7 @@ Future<String> getUserType(String uid) async {
     return userData;
   }
 
-Future updateCustomerInfo(
+  Future updateCustomerInfo(
       int phone, final motorcycleType, final motorcycleNumber) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -373,7 +375,7 @@ Future updateCustomerInfo(
           .collection('brands')
           .doc(user.uid)
           .get();
-      availableBrands = snapshot["brands"]; //! utm error
+      availableBrands = snapshot["brands"];
     }
     return availableBrands;
   }
@@ -387,5 +389,68 @@ Future updateCustomerInfo(
       });
     }
   }
-  
+
+  Future<bool> verfiyOtp(String otp) async {
+    final credential = await FirebaseAuth.instance.signInWithCredential(
+        PhoneAuthProvider.credential(
+            verificationId: this.verificationId.value, smsCode: otp));
+    return credential.user != null ? true : false;
+  }
+
+  Future phoneAuthentication(String phone) async {
+    FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: "+60196414375",
+        verificationCompleted: (credential) async {
+          await FirebaseAuth.instance.signInWithCredential(credential);
+        },
+        verificationFailed: (e) {
+          print(e);
+          // Get.snackbar("error", e.code);
+        },
+        codeSent: (verificationId, resendToken) {
+          this.verificationId.value = verificationId;
+        },
+        codeAutoRetrievalTimeout: (verificationId) {
+          this.verificationId.value = verificationId;
+        });
+  }
+
+  Future<EmployeeUser?> getCurrentEmployee() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    EmployeeUser? userdata;
+    final QuerySnapshot querySnapshot =
+        await db.collectionGroup("employee").get();
+    querySnapshot.docs.forEach((doc) {
+      if (doc.id == user!.phoneNumber)
+        userdata = EmployeeUser.fromMap(doc.data() as Map<String, dynamic>);
+    });
+    return userdata;
+  }
+
+  Future<String> employeeLogin(String phone) async {
+    if (phone.startsWith("0")) {
+      phone = "+6" + phone;
+    } else if (phone.startsWith("6")) {
+      phone = "+" + phone;
+    }
+    bool isExist = false;
+    bool isActive = false;
+
+    final QuerySnapshot querySnapshot =
+        await db.collectionGroup("employee").get();
+    for (QueryDocumentSnapshot docSnapshot in querySnapshot.docs) {
+      Map<String, dynamic> data = docSnapshot.data() as Map<String, dynamic>;
+      if (phone == docSnapshot.id) {
+        isExist = true;
+        isActive = data["isActive"];
+      }
+    }
+    if (isExist && isActive) {
+      await phoneAuthentication(phone);
+      return "";
+    } else {
+      return "invalid user, user doesn't exist or de-activated";
+    }
+  }
 }

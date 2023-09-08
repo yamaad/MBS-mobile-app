@@ -75,19 +75,13 @@ class OrderServices {
       'assignedTo': {
         "name": assignedEmployee != null
             ? assignedEmployee.name
-            : order.assignedTo != null
-                ? order.assignedTo?.name
-                : "",
+            : order.assignedTo,
         "phone": assignedEmployee != null
             ? assignedEmployee.phone
-            : order.assignedTo != null
-                ? order.assignedTo?.phone
-                : "",
+            : order.assignedTo,
         "isActive": assignedEmployee != null
             ? assignedEmployee.isActive
-            : order.assignedTo != null
-                ? order.assignedTo?.isActive
-                : false,
+            : order.assignedTo 
       },
     });
   }
@@ -138,5 +132,19 @@ class OrderServices {
     final doc = await ordersCollection.doc(uid).get();
     final order = OrderInfo.fromMap(doc.data() as Map<String, dynamic>);
     return order;
+  }
+
+  Future<List<OrderInfo>> getOrderAssignedToMe(String phone) async {
+    QuerySnapshot data;
+    List<OrderInfo> orders = [];
+    data = await ordersCollection
+        .where('assignedTo.phone', isEqualTo: phone)
+        .orderBy('creationTime', descending: true)
+        .get();
+
+    for (final doc in data.docs) {
+      orders.add(OrderInfo.fromMap(doc.data() as Map<String, dynamic>));
+    }
+    return orders;
   }
 }

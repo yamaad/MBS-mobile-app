@@ -107,25 +107,7 @@ class _ShowOrderStateState extends State<ShowOrderState> {
                                 Colors.grey.shade500),
                           ),
                         ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            // Accept button action
-                            // Implement your logic here
-                            await orderServices.updateOrderStatus(
-                                widget.order,
-                                widget.order.shopUid,
-                                widget.order.shopPhone,
-                                'completed',
-                                widget.order.assignedTo);
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                          },
-                          child: Text('Mark As Completed'),
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.green),
-                          ),
-                        ),
+                       
                       ],
                     ),
                   ],
@@ -213,6 +195,18 @@ class _ShowOrderStateState extends State<ShowOrderState> {
                               Colors.red.shade500),
                         ),
                       ),
+                      if (widget.order.status == "completed")
+                        ElevatedButton(
+                          onPressed: () async {
+                            showReportDialog(context, widget.currentUserUid,
+                                widget.order.uid, widget.order.shopUid);
+                          },
+                          child: Text('report an issue'),
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.grey.shade500),
+                          ),
+                        ),
                     ],
                   ),
                 if (widget.order.status == "completed" &&

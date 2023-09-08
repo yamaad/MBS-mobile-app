@@ -5,6 +5,7 @@ import 'package:mbs_fyp/screens/admin/adminInterface.dart';
 import 'package:mbs_fyp/screens/authenticate/authenticate.dart';
 import 'package:mbs_fyp/screens/client/dashbord.dart';
 import 'package:mbs_fyp/screens/customer/customerHome.dart';
+import 'package:mbs_fyp/screens/employee/employeeDashboard.dart';
 import 'package:mbs_fyp/screens/inActiveUser.dart';
 import 'package:mbs_fyp/screens/suspeneded.dart';
 import 'package:mbs_fyp/services/authService.dart';
@@ -43,6 +44,8 @@ class Wrapper extends StatelessWidget {
               return AdminInterface();
             } else if (userType == 'inActive') {
               return InActiveUser();
+            } else if (userType == "employee") {
+              return EmployeeDashboard();
             } else {
               return Authenticate();
             }

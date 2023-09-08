@@ -169,7 +169,7 @@ class _AdminInterfaceState extends State<AdminInterface> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Text('Suspeneded Accounts'),
+                    title: Text('Suspended Accounts'),
                     content: Container(
                       width: double.minPositive,
                       child: ListView.builder(
@@ -195,7 +195,7 @@ class _AdminInterfaceState extends State<AdminInterface> {
                                                   "suspend-client");
                                           Navigator.pop(context);
                                         },
-                                        child: Text("re-acativater")),
+                                        child: Text("re-activate")),
                                   ],
                                 )
                               ],
@@ -269,7 +269,7 @@ class _AdminInterfaceState extends State<AdminInterface> {
                                                   "suspend-customer");
                                           Navigator.pop(context);
                                         },
-                                        child: Text("re-acativater")),
+                                        child: Text("re-activate")),
                                   ],
                                 )
                               ],
@@ -541,7 +541,7 @@ class _AdminInterfaceState extends State<AdminInterface> {
                                                 await fetchReports();
                                                 Navigator.pop(context);
                                               },
-                                              child: Text("mark as resloved"),
+                                              child: Text("mark as resolved"),
                                             )
                                           ],
                                         ),
@@ -629,7 +629,7 @@ Future viewUser(context, String name, String email, String userType, num phone,
                       deActivateAcount;
                       Navigator.pop(context);
                     },
-                    child: Text("susspend Account")),
+                    child: Text("Suspend Account")),
                 Spacer(),
                 TextButton(
                     onPressed: () async {

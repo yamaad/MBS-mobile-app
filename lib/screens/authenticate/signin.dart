@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mbs_fyp/screens/authenticate/employeeLogin.dart';
 
 import 'package:mbs_fyp/services/authService.dart';
 import 'package:mbs_fyp/components/customTextField.dart';
@@ -64,8 +65,11 @@ class _SigninState extends State<Signin> {
                       ),
                       Spacer(),
                       TextButton(
-                              onPressed: () async {},
-                        child: Text("forgot password"),
+                              onPressed: () async {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => EmployeeLogin()));
+                              },
+                              child: Text("login as employee"),
                       ),
                     ],
                   ),
