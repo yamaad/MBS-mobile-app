@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:mbs_fyp/screens/customer/showOrderState.dart';
 import 'package:mbs_fyp/services/orderServcies.dart';
 import '../../models/orderInfo.dart';
 import '../client/dashBoardFunctions.dart';
 
-void showOrdersHistory(BuildContext context, String currentUserUid) async {
+void showOrdersHistory(BuildContext context, String currentUserUid,
+    Position currentUserLocation) async {
   final _orderServices = OrderServices();
   List<OrderInfo> orders =
       await _orderServices.getCustOrdersHistory(currentUserUid);
@@ -49,15 +52,12 @@ void showOrdersHistory(BuildContext context, String currentUserUid) async {
                               trailing: Text(order.creationTime.toString()),
                               onTap: () {
                                 // Handle order tap event
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    content: ShowOrderState(
-                                      currentUserUid: currentUserUid,
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => ShowOrderState(
+                                        currentUserUid: currentUserUid, 
                                       order: order,
-                                    ),
-                                  ),
-                                );
+                                        currentUserLocation:
+                                            currentUserLocation)));
                               },
                             );
                           },

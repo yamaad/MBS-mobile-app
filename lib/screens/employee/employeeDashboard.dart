@@ -1,9 +1,12 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 import 'package:mbs_fyp/models/employeeModel.dart';
 import 'package:mbs_fyp/models/orderInfo.dart';
 import 'package:mbs_fyp/screens/client/dashBoardFunctions.dart';
 import 'package:mbs_fyp/services/authService.dart';
+import 'package:mbs_fyp/services/liveLocation.dart';
 import 'package:mbs_fyp/services/orderServcies.dart';
 
 class EmployeeDashboard extends StatefulWidget {
@@ -18,6 +21,10 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
   OrderServices _orderServices = OrderServices();
   EmployeeUser? user;
   List<OrderInfo> orders = [];
+  LocationData? currentLoction;
+  LiveLocationServices _liveLocationServices = LiveLocationServices();
+
+  
   @override
   void initState() {
     super.initState();
@@ -28,13 +35,24 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
   void dispose() {
     super.dispose();
   }
-
+void getCurrentLocation() {
+    Location location = Location();
+    location.getLocation().then((value) {
+      currentLoction = value;
+    });
+    location.onLocationChanged.listen((event) {
+      currentLoction = event;
+      _liveLocationServices.updateLocation(currentLoction, user!.phone);
+      
+    });
+  }
   void getUser() async {
     user = await _auth.getCurrentEmployee();
     if (!user!.isActive) {
       await _auth.signOut();
     }
     getOrders();
+    getCurrentLocation();
     if (mounted) setState(() {});
   }
 
@@ -49,7 +67,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
         appBar: AppBar(
           backgroundColor: Colors.brown[400],
           elevation: 0.0,
-          title: Text(user != null ? user!.name : "x"),
+          title: Text(user != null ? user!.name : ""),
           centerTitle: true,
           actions: <Widget>[
             TextButton.icon(

@@ -44,12 +44,13 @@ class _CustomerHomeState extends State<CustomerHome> {
     super.dispose();
   }
 
-  void _getCurrentLocation() async {
+  Future _getCurrentLocation() async {
     Position position = await LocationServices.getCurrentLocation();
+    _currentPosition = position;
     if (mounted) {
       setState(() {
-      _currentPosition = position;
       });
+      
     }
 
     if (_mapController != null) {
@@ -62,6 +63,7 @@ class _CustomerHomeState extends State<CustomerHome> {
         ),
       );
     }
+    return position;
   }
 
   @override
@@ -76,8 +78,9 @@ class _CustomerHomeState extends State<CustomerHome> {
         centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.history),
-          onPressed: () {
-            showOrdersHistory(context, user!.uid);
+          onPressed: () async {
+            Position location = await _getCurrentLocation();
+            showOrdersHistory(context, user!.uid, location);
           },
         ),
         actions: <Widget>[
@@ -159,6 +162,7 @@ class _CustomerHomeState extends State<CustomerHome> {
         children: [
           GoogleMap(
             onMapCreated: (controller) {
+              if (mounted)
               setState(() {
                 _mapController = controller;
               });

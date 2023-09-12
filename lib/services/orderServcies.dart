@@ -53,7 +53,15 @@ class OrderServices {
           "longitude": location.longitude,
         },
         'creationTime': DateTime.now(),
-        'assignedTo': {"name": "", "phone": "", "isActive": false}
+        'assignedTo': {
+          "name": "",
+          "phone": "",
+          "isActive": false,
+          "location": {
+            "latitude": null,
+            "longitude": null,
+          }
+        }
       };
 
       await orderDocRef.set(orderData);
@@ -75,13 +83,21 @@ class OrderServices {
       'assignedTo': {
         "name": assignedEmployee != null
             ? assignedEmployee.name
-            : order.assignedTo,
+            : order.assignedTo.name,
         "phone": assignedEmployee != null
             ? assignedEmployee.phone
-            : order.assignedTo,
+            : order.assignedTo.phone,
         "isActive": assignedEmployee != null
             ? assignedEmployee.isActive
-            : order.assignedTo 
+            : order.assignedTo.isActive,
+        "location": {
+          "latitude": assignedEmployee != null
+              ? assignedEmployee.location.latitude
+              : order.assignedTo.location.latitude,
+          "longitude": assignedEmployee != null
+              ? assignedEmployee.location.longitude
+              : order.assignedTo.location.longitude,
+        } 
       },
     });
   }
