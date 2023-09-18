@@ -34,7 +34,7 @@ class _ShowOrderStateState extends State<ShowOrderState> {
   final auth = AuthSevrices();
   LiveLocationServices _locationServices = LiveLocationServices();
   final Completer<GoogleMapController> _controller = Completer();
-  String shopName = '-';
+  ShopInfo? shopInfo;
   LatLng? employeeLocation;
   num pricingRate = 0;
   num serviceRate = 0;
@@ -129,7 +129,7 @@ class _ShowOrderStateState extends State<ShowOrderState> {
       ShopInfo shopInfo = await auth.getShopData(widget.order.shopUid!);
       if (mounted) {
         setState(() {
-        shopName = shopInfo.shopName;
+          this.shopInfo = shopInfo;
 
         });
       }
@@ -277,7 +277,7 @@ class _ShowOrderStateState extends State<ShowOrderState> {
                   children: [
                     Text("Shop: "),
                     Spacer(),
-                    Text(shopName),
+                        Text(shopInfo != null ? shopInfo!.shopName : "-"),
                   ],
                 ),
                
@@ -405,7 +405,8 @@ class _ShowOrderStateState extends State<ShowOrderState> {
                                   await orderServices.rateOrder(
                                       widget.order.uid,
                                       pricingRate,
-                                      serviceRate);
+                                          serviceRate,
+                                          shopInfo!);
                                   Navigator.pop(context);
                                   Navigator.pop(context);
                                 },

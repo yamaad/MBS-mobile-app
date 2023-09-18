@@ -136,10 +136,17 @@ class LocationServices {
       distances.add(distance);
     }
 
-    // Sort the shop list based on distance
-    shopList.sort((a, b) => distances[shopList.indexOf(a)]
-        .compareTo(distances[shopList.indexOf(b)]));
+    // Create a list of indices and sort it based on distances
+    List<int> indices = List.generate(shopList.length, (index) => index);
+    indices.sort((a, b) => distances[a].compareTo(distances[b]));
 
-    return shopList;
+    // Rearrange the shopList based on the sorted indices
+    List<ShopInfo> sortedShopList = [];
+    for (var index in indices) {
+      sortedShopList.add(shopList[index]);
+    }
+
+    return sortedShopList;
   }
+
 }

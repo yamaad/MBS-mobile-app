@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mbs_fyp/models/customerUser.dart';
 import 'package:mbs_fyp/models/employeeModel.dart';
+import 'package:mbs_fyp/models/shopInfo.dart';
 import 'package:mbs_fyp/services/locationServeices.dart';
 import 'package:mbs_fyp/models/orderInfo.dart';
 
@@ -102,9 +103,19 @@ class OrderServices {
     });
   }
   Future<void> rateOrder(
-      String orderUid, num pricingRating, num serviceRating) async {
+      String orderUid, num pricingRating, num serviceRating,
+      ShopInfo shop) async {
     await ordersCollection.doc(orderUid).update(
         {"pricingRating": pricingRating, "serviceRating": serviceRating});
+    
+    await FirebaseFirestore.instance.collection('user').doc(shop.uid).update({
+      "pricing": (shop.pricing * shop.pricingCount + pricingRating) /
+          (shop.pricingCount + 1),
+      "pricingCount": shop.pricingCount + 1,
+      "service": (shop.service * shop.serviceCount + serviceRating) /
+          (shop.serviceCount + 1),
+      "serviceCount": shop.serviceCount + 1
+    });
   }
 
   // Return the latest 5 Orders in the history
