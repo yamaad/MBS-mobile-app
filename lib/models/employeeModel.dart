@@ -4,12 +4,12 @@ class EmployeeUser {
   String name;
   String phone;
   bool isActive;
-  LatLng location;
+  LatLng? location;
   EmployeeUser({
     required this.name,
     required this.phone,
     required this.isActive,
-    required this.location,
+    this.location,
   });
 
   factory EmployeeUser.fromMap(Map<String, dynamic>? map) {
@@ -23,7 +23,8 @@ class EmployeeUser {
       name: map['name'],
       phone: map['phone'],
       isActive: map['isActive'],
-      location: LatLng(latitude, longitude),
+      location:
+          latitude != null ? LatLng(latitude, longitude) : LatLng(1.5, 1.5),
     );
   }
 }

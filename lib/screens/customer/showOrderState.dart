@@ -73,7 +73,7 @@ class _ShowOrderStateState extends State<ShowOrderState> {
     final url = Uri.parse(
         'https://maps.googleapis.com/maps/api/distancematrix/json'
         '?origins=${widget.currentUserLocation.latitude},${widget.currentUserLocation.longitude}'
-        '&destinations=${order.assignedTo.location.latitude},${order.assignedTo.location.longitude}'
+        '&destinations=${order.assignedTo.location!.latitude},${order.assignedTo.location!.longitude}'
         '&key=${apiKey}');
 
     final response = await http.get(url);
@@ -90,31 +90,31 @@ class _ShowOrderStateState extends State<ShowOrderState> {
         await _locationServices.streamOrder(widget.order.uid);
 
     _orderSubscription = ordersStream.listen((OrderInfo order) {
-      employeeLocation = LatLng(order.assignedTo.location.latitude,
-          order.assignedTo.location.longitude);
+      employeeLocation = LatLng(order.assignedTo.location!.latitude,
+          order.assignedTo.location!.longitude);
       updateZoomLevel(googleMapController);
       getTravelTime(order);
       getPolyPoints();
       LatLngBounds bounds = LatLngBounds(
         southwest: LatLng(
           widget.currentUserLocation.latitude <
-                  order.assignedTo.location.latitude
+                  order.assignedTo.location!.latitude
               ? widget.currentUserLocation.latitude
-              : order.assignedTo.location.latitude,
+              : order.assignedTo.location!.latitude,
           widget.currentUserLocation.longitude <
-                  order.assignedTo.location.longitude
+                  order.assignedTo.location!.longitude
               ? widget.currentUserLocation.longitude
-              : order.assignedTo.location.longitude,
+              : order.assignedTo.location!.longitude,
         ),
         northeast: LatLng(
           widget.currentUserLocation.latitude >
-                  order.assignedTo.location.latitude
+                  order.assignedTo.location!.latitude
               ? widget.currentUserLocation.latitude
-              : order.assignedTo.location.latitude,
+              : order.assignedTo.location!.latitude,
           widget.currentUserLocation.longitude >
-                  order.assignedTo.location.longitude
+                  order.assignedTo.location!.longitude
               ? widget.currentUserLocation.longitude
-              : order.assignedTo.location.longitude,
+              : order.assignedTo.location!.longitude,
         ),
       );
 

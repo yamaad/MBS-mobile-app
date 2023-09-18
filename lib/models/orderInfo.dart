@@ -42,8 +42,11 @@ class OrderInfo {
   factory OrderInfo.fromMap(Map<String, dynamic> map) {
     final latitude = map['location']['latitude'];
     final longitude = map['location']['longitude'];
+
+
     final assignedToLatitude = map["assignedTo"]['location']['latitude'];
     final assignedToLongitude = map["assignedTo"]['location']['longitude'];
+
     final Timestamp timestamp = map['creationTime'];
     final name = map["assignedTo"]["name"];
     final phone = map["assignedTo"]["phone"];
@@ -73,7 +76,9 @@ class OrderInfo {
             name: name,
             phone: phone,
             isActive: isActive,
-            location: LatLng(assignedToLatitude, assignedToLongitude))
+            location: assignedToLongitude != null
+                ? LatLng(assignedToLatitude, assignedToLongitude)
+                : LatLng(0, 0))
     );
   }
 }

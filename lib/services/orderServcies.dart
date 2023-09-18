@@ -92,11 +92,11 @@ class OrderServices {
             : order.assignedTo.isActive,
         "location": {
           "latitude": assignedEmployee != null
-              ? assignedEmployee.location.latitude
-              : order.assignedTo.location.latitude,
+              ? assignedEmployee.location!.latitude
+              : order.assignedTo.location!.latitude,
           "longitude": assignedEmployee != null
-              ? assignedEmployee.location.longitude
-              : order.assignedTo.location.longitude,
+              ? assignedEmployee.location!.longitude
+              : order.assignedTo.location!.longitude,
         } 
       },
     });

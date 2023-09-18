@@ -175,7 +175,12 @@ class AuthSevrices {
             .doc(user.uid)
             .collection("employee")
             .doc(phone)
-            .set({"name": name, "phone": phone, "isActive": true});
+            .set({
+          "name": name,
+          "phone": phone,
+          "isActive": true,
+          "location": {"latitude:": 0.1, "longitude:": 0.1}
+        });
         employees.clear();
         await this.getEmployees();
         return "employee user created";
