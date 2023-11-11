@@ -41,6 +41,15 @@ class _SigninState extends State<Signin> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                        Text(
+                          "MB SERVICES",
+                          style: TextStyle(
+                            fontSize: 24.0, // Adjust the font size as needed
+                            fontWeight: FontWeight.bold, // Make the text bold
+                            color: Colors.blue, // Set the text color
+                            // You can also add more styling like fontFamily, letterSpacing, etc.
+                          ),
+                        ),
                   CustomTextField(
                     validator: (value) =>
                         value!.isEmpty ? "Enter your email" : null,

@@ -221,6 +221,15 @@ class _DashboardState extends State<Dashboard> {
       body: Container(
         child: Column(
           children: [
+            Text(
+              "MB SERVICES",
+              style: TextStyle(
+                fontSize: 24.0, // Adjust the font size as needed
+                fontWeight: FontWeight.bold, // Make the text bold
+                color: Colors.blue, // Set the text color
+                // You can also add more styling like fontFamily, letterSpacing, etc.
+              ),
+            ),
             SizedBox(
               height: 20,
             ),

@@ -47,6 +47,15 @@ class _CustomerSignupState extends State<CustomerSignup> {
                     key: _formkey,
                     child: ListView(
                       children: [
+                        Text(
+                          "MB SERVICES",
+                          style: TextStyle(
+                            fontSize: 24.0, // Adjust the font size as needed
+                            fontWeight: FontWeight.bold, // Make the text bold
+                            color: Colors.blue, // Set the text color
+                            // You can also add more styling like fontFamily, letterSpacing, etc.
+                          ),
+                        ),
                         CustomTextField(
                           validator: (value) =>
                               value!.isEmpty ? "Enter your First name" : null,
